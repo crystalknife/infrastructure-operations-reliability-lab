@@ -1,8 +1,7 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/readme-header-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="assets/readme-header-light.png">
-  <img alt="Infrastructure Operations & Reliability Lab, built on Agent Reliability Lab" src="assets/readme-header-light.png" width="100%">
-</picture>
+<p align="center">
+  <img src="assets/readme-header-light.png#gh-light-mode-only" alt="Infrastructure Operations & Reliability Lab, built on Agent Reliability Lab" width="100%">
+  <img src="assets/readme-header-dark.png#gh-dark-mode-only" alt="Infrastructure Operations & Reliability Lab, built on Agent Reliability Lab" width="100%">
+</p>
 
 An infrastructure-focused agent evaluation lab for observing controlled incidents, gathering evidence, choosing a narrowly allowlisted recovery action, and verifying the result. The project has a public Observatory, a deterministic in-memory incident simulator, an optional local Nginx and Prometheus stack, and support for evaluating a local Qwen model through `llama-server`.
 

@@ -70,6 +70,9 @@ describe("infrastructure route", () => {
     at("/", <Routes>{routes}</Routes>);
     await waitFor(() => expect(document.body.textContent).toContain("Latest evaluation"));
     expect(document.body.textContent).toContain("Making infrastructure operations measurable.");
+    expect(screen.getByRole("img", { name: /small operations robot investigates a simulated Nginx incident/ })).toBeTruthy();
+    expect(document.querySelector(".infra-agent-travel")).toBeTruthy();
+    expect(document.body.textContent).toContain("RECOVERY VERIFIED");
     expect(document.body.textContent).toContain("Recovery verified");
     expect(document.body.textContent).toContain("Open incident lab");
     expect(screen.getByRole("link", { name: /Open incident lab/ }).getAttribute("href")).toBe("/infrastructure");

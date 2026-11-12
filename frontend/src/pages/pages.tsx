@@ -30,6 +30,91 @@ export function DashboardPage() {
 }
 
 /** /infrastructure — latest deterministic infrastructure incident artifact. */
+export function OperationsPage() {
+  const [incident, setIncident] = useState<{
+    scenario: string; passed: boolean; model: string; steps: number;
+  } | null>(null);
+  useEffect(() => {
+    fetch(dataUrl("infra-latest.json"), { cache: "no-store" })
+      .then((r) => { if (!r.ok) throw new Error("no incident artifact yet"); return r.json(); })
+      .then(setIncident)
+      .catch(() => setIncident(null));
+  }, []);
+
+  return (
+    <LabShell>
+      <section className="grid gap-6 border-b border-[var(--color-ink-faint)] pb-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-signal)]">Control room · local lab</p>
+          <h2 className="font-display mt-3 max-w-3xl text-4xl font-bold leading-[1.02] tracking-tight sm:text-6xl">
+            Infrastructure operations, under control.
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-soft)] sm:text-base">
+            A safe workspace for incident response experiments, built on Agent Reliability Lab. The agent works against an isolated simulator; local monitoring is available alongside it.
+          </p>
+        </div>
+        <div className="border-l-2 border-[var(--color-signal)] pl-4 font-mono text-xs leading-relaxed text-[var(--color-ink-soft)]">
+          <p className="uppercase tracking-wider text-[var(--color-ink-faint)]">Operational boundary</p>
+          <p className="mt-2">Simulated recovery and Docker monitoring are separate.</p>
+          <p>No host shell · no Docker socket · deterministic checks.</p>
+        </div>
+      </section>
+
+      <section className="mt-8 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <article className="card p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">Latest evaluation</p>
+              {incident ? (
+                <>
+                  <h3 className="font-display mt-2 text-2xl font-bold">{incident.passed ? "Recovery verified" : "Review required"}</h3>
+                  <p className="mt-1 font-mono text-xs text-[var(--color-ink-soft)]">{incident.scenario} · {incident.model} · {incident.steps} steps</p>
+                </>
+              ) : <p className="mt-2 font-mono text-sm text-[var(--color-ink-faint)]">No incident result recorded yet.</p>}
+            </div>
+            {incident && <span className="rounded-full bg-[var(--color-moss)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--color-card)]">{incident.passed ? "pass" : "review"}</span>}
+          </div>
+          <Link to="/infrastructure" className="mt-6 inline-flex items-center gap-2 border-t border-[var(--color-paper-deep)] pt-4 font-mono text-xs uppercase tracking-wider hover:text-[var(--color-signal)]">
+            Open incident lab <span aria-hidden="true">→</span>
+          </Link>
+        </article>
+
+        <article className="card p-5 sm:p-6">
+          <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">Local monitoring stack</p>
+          <h3 className="font-display mt-2 text-2xl font-bold">Observe the demo service</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Optional Docker Nginx and Prometheus endpoints. They are not controlled by the agent.</p>
+          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs">
+            <a className="underline decoration-[var(--color-signal)] underline-offset-4 hover:text-[var(--color-signal)]" href="http://127.0.0.1:8088/health" target="_blank" rel="noreferrer">Nginx health ↗</a>
+            <a className="underline decoration-[var(--color-signal)] underline-offset-4 hover:text-[var(--color-signal)]" href="http://127.0.0.1:9090/targets" target="_blank" rel="noreferrer">Prometheus targets ↗</a>
+          </div>
+        </article>
+      </section>
+
+      <section className="mt-10">
+        <SectionTitle index="01" title="Lab map" hint="one reliability loop · separate evidence surfaces" />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Link to="/infrastructure" className="card block p-5 hover:-translate-y-0.5">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">01 · incidents</p>
+            <h3 className="font-display mt-2 text-xl font-bold">Incident Lab</h3>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Run fixed Nginx faults, inspect trajectories, and see deterministic recovery checks.</p>
+          </Link>
+          <Link to="/experiments" className="card block p-5 hover:-translate-y-0.5">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">02 · foundation</p>
+            <h3 className="font-display mt-2 text-xl font-bold">Agent evaluations</h3>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Explore the Agent Reliability Lab experiments and their recorded model behavior.</p>
+          </Link>
+          <article className="card p-5">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">03 · safeguards</p>
+            <h3 className="font-display mt-2 text-xl font-bold">Constrained by design</h3>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Read-only diagnostics, one allowlisted simulator restart, and health verification after action.</p>
+          </article>
+        </div>
+      </section>
+    </LabShell>
+  );
+}
+
+/** /infrastructure — detailed incident lab and scenario catalog. */
 export function InfrastructurePage() {
   const [incident, setIncident] = useState<{
     scenario: string; passed: boolean; recovered: boolean; recovery_verified: boolean;

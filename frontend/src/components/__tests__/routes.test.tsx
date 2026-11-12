@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { dataUrl } from "../../lib/load";
 import {
-  DashboardPage, ExperimentPage, ExperimentsPage, TaskPage, TrialsPage, TrialPage, InfrastructurePage,
+  DashboardPage, ExperimentPage, ExperimentsPage, TaskPage, TrialsPage, TrialPage, InfrastructurePage, OperationsPage,
 } from "../../pages/pages";
 
 const DATA = join(process.cwd(), "public", "data");
@@ -47,13 +47,14 @@ function at(path: string, el: React.ReactNode) {
 
 const routes = (
   <>
-    <Route path="/" element={<InfrastructurePage />} />
+    <Route path="/" element={<OperationsPage />} />
     <Route path="/agent-reliability" element={<DashboardPage />} />
     <Route path="/experiments" element={<ExperimentsPage />} />
     <Route path="/experiments/:id" element={<ExperimentPage />} />
     <Route path="/experiments/:id/tasks/:taskId" element={<TaskPage />} />
     <Route path="/experiments/:id/trials" element={<TrialsPage />} />
     <Route path="/experiments/:id/trials/:runId" element={<TrialPage />} />
+    <Route path="/infrastructure" element={<InfrastructurePage />} />
   </>
 );
 
@@ -141,12 +142,23 @@ describe("exp-002 pilot report", () => {
 });
 
 describe("infrastructure route", () => {
-  it("makes operations the home page and renders the evaluated incident", async () => {
+  it("renders a distinct operations overview with a link to the incident lab", async () => {
     at("/", <Routes>{routes}</Routes>);
+    await waitFor(() => expect(document.body.textContent).toContain("Latest evaluation"));
+    expect(document.body.textContent).toContain("Control room");
+    expect(document.body.textContent).toContain("Recovery verified");
+    expect(document.body.textContent).toContain("Open incident lab");
+    expect(screen.getByRole("link", { name: /Open incident lab/ }).getAttribute("href")).toBe("/infrastructure");
+    expect(document.body.textContent).not.toContain("restart_service");
+  });
+
+  it("renders a detailed incident lab with scenario catalog and refresh action", async () => {
+    at("/infrastructure", <Routes>{routes}</Routes>);
     await waitFor(() => expect(document.body.textContent).toContain("Recovered and verified"));
     expect(document.body.textContent).toContain("nginx-unavailable");
     expect(document.body.textContent).toContain("restart_service");
     expect(document.body.textContent).toContain("Recovery verified: yes");
+    expect(document.body.textContent).toContain("nginx-memory-pressure");
     expect(document.body.textContent).toContain("Observe. Diagnose.");
     expect(document.body.textContent?.toLowerCase()).toContain("no docker socket");
     expect(screen.getByRole("button", { name: "Refresh result" })).toBeTruthy();

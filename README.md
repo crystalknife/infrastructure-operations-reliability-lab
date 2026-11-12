@@ -2,7 +2,7 @@
 
 An infrastructure-focused agent evaluation lab for observing controlled incidents, gathering evidence, choosing a narrowly allowlisted recovery action, and verifying the result. The project has a public Observatory, a deterministic in-memory incident simulator, an optional local Nginx and Prometheus stack, and support for evaluating a local Qwen model through `llama-server`.
 
-**Live Observatory:** [crystalknife.github.io/infrastructure-operations-reliability-lab](https://crystalknife.github.io/infrastructure-operations-reliability-lab/)
+**Live site:** [https://crystalknife.github.io/infrastructure-operations-reliability-lab/](https://crystalknife.github.io/infrastructure-operations-reliability-lab/)
 
 **Source:** [crystalknife/infrastructure-operations-reliability-lab](https://github.com/crystalknife/infrastructure-operations-reliability-lab)
 

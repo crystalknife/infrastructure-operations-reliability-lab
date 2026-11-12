@@ -29,6 +29,12 @@ class InfrastructureTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unknown infrastructure tool"):
             dispatch(InfrastructureEnv(), "run_shell", {})
 
+    def test_restart_acknowledgement_is_not_health_evidence(self):
+        env = InfrastructureEnv()
+        ack = dispatch(env, "restart_service", {"service": "nginx"})
+        self.assertEqual(ack["verification"], "unknown; call inspect_service")
+        self.assertNotIn("status", ack)
+
 
 if __name__ == "__main__":
     unittest.main()

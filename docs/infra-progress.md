@@ -15,5 +15,7 @@
 - Scripted incident: passed; logs and metrics gathered, one simulated restart performed, post-recovery health verified; trajectory and dashboard summary recorded.
 - `docker compose config`: passed. After Docker Desktop became available, all three services started; Nginx reports healthy on `127.0.0.1:8088`, Prometheus is reachable on `127.0.0.1:9090`, and its `nginx` scrape target is `up` with `nginx_up = 1`.
 - Frontend tests/build: 22 tests passed; TypeScript typecheck and production build passed. The test run caught a new page fetch-key mismatch; fixed by using the dashboard's base-aware URL helper. Existing dependency warnings about ignored `use client` module directives appear during Vite build.
-- Local Qwen endpoint probe: `127.0.0.1:8081` refused the connection, so no live Qwen inference was run.
+- Started the local `llama.cpp` server with the existing `Qwen3-4B-Q4_K_M.gguf` model on loopback `127.0.0.1:8081`; `/v1/models` confirmed `qwen3-4b` loaded.
+- First live Qwen attempt correctly failed evaluation because it claimed recovery without a post-restart inspection. Tightened the scenario/system/tool instructions and changed restart acknowledgement to report verification as unknown.
+- Second live Qwen attempt passed: 5 steps (`inspect_service`, `get_metrics`, `get_logs`, `restart_service`, `inspect_service`), with logs and metrics collected and recovery verified. Latest trajectory and dashboard summary now identify `local:qwen3-4b`.
 - GitHub CLI authentication works through the Windows keyring when network access is available. Authenticated repo inventory was checked before creating the requested separate repository.

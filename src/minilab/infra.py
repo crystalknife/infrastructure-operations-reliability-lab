@@ -17,7 +17,9 @@ from .trajectory import save_jsonl
 SCENARIOS = {
     "nginx-unavailable": {
         "prompt": "Nginx is unavailable. Investigate the service, metrics, and logs. "
-                  "Use only an approved remediation if evidence supports it, then verify recovery.",
+                  "Use only an approved remediation if evidence supports it. After restarting, "
+                  "you must call inspect_service again and confirm it reports healthy before "
+                  "you say the incident is resolved.",
         "service": "nginx",
     }
 }
@@ -29,7 +31,7 @@ TOOL_SCHEMAS = [
      "params": {"service": {"type": "string", "required": True}}},
     {"name": "get_logs", "description": "Read recent, fixed incident log lines.",
      "params": {"service": {"type": "string", "required": True}}},
-    {"name": "restart_service", "description": "Approved recovery action for nginx in this simulator only.",
+    {"name": "restart_service", "description": "Request the approved simulator-only restart of nginx. This acknowledgement does NOT confirm service health; immediately call inspect_service to verify recovery.",
      "params": {"service": {"type": "string", "required": True}}},
 ]
 
@@ -37,7 +39,9 @@ SYSTEM_PROMPT = (
     'You are an infrastructure reliability agent in a simulator. Use JSON tool calls '
     '{"tool":"name","arguments":{...}} or finish with {"final":"..."}. '
     'Tools are read-only except restart_service, which only changes simulated nginx state. '
-    'Never claim recovery without inspecting service status after the action.'
+    'A restart response is only an acknowledgement and its status is unknown. After calling '
+    'restart_service, you MUST call inspect_service as a separate next tool call. Only report '
+    'recovery if that later inspection returns status healthy; otherwise report unresolved.'
 )
 
 
@@ -70,7 +74,8 @@ class InfrastructureEnv:
             return {"changed": False, "service": "nginx", "reason": "already healthy"}
         self.service_state = "running"
         self.actions.append("restart_service")
-        return {"changed": True, "service": "nginx", "status": "running", "scope": "simulator"}
+        return {"changed": True, "service": "nginx", "scope": "simulator",
+                "verification": "unknown; call inspect_service"}
 
     @staticmethod
     def _require_nginx(service):

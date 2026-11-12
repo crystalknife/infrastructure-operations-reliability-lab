@@ -65,89 +65,123 @@ body {
   border-radius: 10px;
 }
 
-/* A small SRE bot acts out the actual incident cycle instead of decorating
-   the diagram: detect pressure, inspect evidence, restart the simulator,
-   and verify that Nginx answers again. */
-@keyframes infra-telemetry-flow { to { stroke-dashoffset: -56; } }
-@keyframes infra-robot-run {
-  0%, 16% { transform: translateX(0); }
-  34%, 66% { transform: translateX(37%); }
-  84%, 100% { transform: translateX(0); }
+/* Incident visualization: evidence is gathered, the one permitted action
+   block is connected to the simulator boundary, and recovery is verified. */
+@keyframes infra-telemetry-flow { to { stroke-dashoffset: -52; } }
+@keyframes infra-block-placement {
+  0%, 37% { transform: translateX(0); }
+  54%, 100% { transform: translateX(54%); }
 }
-@keyframes infra-robot-bob {
+@keyframes infra-agent-bob {
   from { transform: translateY(0); }
-  to { transform: translateY(-2px); }
+  to { transform: translateY(-1.5px); }
 }
 @keyframes infra-cycle-alert {
-  0%, 23% { opacity: 1; }
-  24%, 100% { opacity: 0; }
+  0%, 19% { opacity: 1; }
+  20%, 100% { opacity: 0; }
 }
 @keyframes infra-cycle-diagnose {
-  0%, 23% { opacity: 0; }
-  24%, 46% { opacity: 1; }
-  47%, 100% { opacity: 0; }
+  0%, 19% { opacity: 0; }
+  20%, 38% { opacity: 1; }
+  39%, 100% { opacity: 0; }
 }
 @keyframes infra-cycle-restart {
-  0%, 46% { opacity: 0; }
-  47%, 63% { opacity: 1; }
-  64%, 100% { opacity: 0; }
+  0%, 38% { opacity: 0; }
+  39%, 66% { opacity: 1; }
+  67%, 100% { opacity: 0; }
 }
 @keyframes infra-cycle-verify {
-  0%, 63% { opacity: 0; }
-  64%, 99% { opacity: 1; }
+  0%, 66% { opacity: 0; }
+  67%, 99% { opacity: 1; }
   100% { opacity: 0; }
 }
 @keyframes infra-health-state {
-  0%, 23% { fill: #b3372a; }
-  24%, 46% { fill: #9a6a00; }
-  47%, 63% { fill: #ff4d00; }
-  64%, 99% { fill: #3e6b34; }
+  0%, 19% { fill: #b3372a; }
+  20%, 38% { fill: #9a6a00; }
+  39%, 66% { fill: #ff4d00; }
+  67%, 99% { fill: #3e6b34; }
   100% { fill: #b3372a; }
 }
-@keyframes infra-robot-scan {
-  0%, 23% { opacity: .18; }
-  24%, 100% { opacity: 0; }
+@keyframes infra-evidence-read {
+  0%, 19% { opacity: 0; stroke-dashoffset: 40; }
+  20%, 38% { opacity: 1; stroke-dashoffset: 0; }
+  39%, 100% { opacity: 0; stroke-dashoffset: -40; }
 }
-@keyframes infra-robot-tool {
-  0%, 46% { opacity: .35; }
-  47%, 63% { opacity: 1; }
-  64%, 100% { opacity: .35; }
+@keyframes infra-agent-scan {
+  0%, 19% { opacity: .15; }
+  20%, 38% { opacity: .08; }
+  39%, 100% { opacity: 0; }
+}
+@keyframes infra-action-focus {
+  0%, 37% { stroke: #ff4d00; }
+  54%, 99% { stroke: #3e6b34; }
+  100% { stroke: #ff4d00; }
+}
+@keyframes infra-link-on {
+  0%, 49% { opacity: 0; stroke-dashoffset: 30; }
+  54%, 99% { opacity: 1; stroke-dashoffset: 0; }
+  100% { opacity: 0; }
+}
+@keyframes infra-tool-reach {
+  0%, 38% { opacity: .25; }
+  48%, 66% { opacity: 1; }
+  67%, 100% { opacity: .4; }
+}
+@keyframes infra-value-high {
+  0%, 66% { opacity: 1; }
+  67%, 99% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes infra-value-healthy {
+  0%, 66% { opacity: 0; }
+  67%, 99% { opacity: 1; }
+  100% { opacity: 0; }
 }
 @keyframes infra-step-one {
-  0%, 23% { opacity: 1; }
-  24%, 100% { opacity: .25; }
+  0%, 19% { opacity: 1; }
+  20%, 100% { opacity: .25; }
 }
 @keyframes infra-step-two {
-  0%, 23% { opacity: .25; }
-  24%, 46% { opacity: 1; }
-  47%, 100% { opacity: .25; }
+  0%, 19% { opacity: .25; }
+  20%, 38% { opacity: 1; }
+  39%, 100% { opacity: .25; }
 }
 @keyframes infra-step-three {
-  0%, 46% { opacity: .25; }
-  47%, 63% { opacity: 1; }
-  64%, 100% { opacity: .25; }
+  0%, 38% { opacity: .25; }
+  39%, 66% { opacity: 1; }
+  67%, 100% { opacity: .25; }
 }
 @keyframes infra-step-four {
-  0%, 63% { opacity: .25; }
-  64%, 99% { opacity: 1; }
+  0%, 66% { opacity: .25; }
+  67%, 99% { opacity: 1; }
   100% { opacity: .25; }
 }
 
-.infra-telemetry { animation: infra-telemetry-flow 2.8s linear infinite; }
-.infra-agent-travel { transform-box: view-box; animation: infra-robot-run 16s ease-in-out infinite; }
-.infra-agent-character { animation: infra-robot-bob .55s ease-in-out infinite alternate; }
+.infra-agent-character { transform-box: fill-box; transform-origin: center; animation: infra-agent-bob .9s ease-in-out infinite alternate; }
+.infra-evidence-flow { animation: infra-evidence-read 16s linear infinite; }
+.infra-agent-scan { animation: infra-agent-scan 16s linear infinite; }
+.infra-action-block { transform-box: view-box; animation: infra-block-placement 16s cubic-bezier(.3,.8,.2,1) infinite; }
+.infra-action-shell { animation: infra-action-focus 16s linear infinite; }
+.infra-block-port { animation: infra-tool-reach 16s linear infinite; }
+.infra-simulator-link { animation: infra-link-on 16s linear infinite; }
+.infra-pressure-bar { animation: infra-value-high 16s linear infinite; }
+.infra-healthy-bar { animation: infra-value-healthy 16s linear infinite; }
+.infra-agent-reach, .infra-agent-grip { animation: infra-tool-reach 16s linear infinite; }
 .infra-phase, .infra-service-down, .infra-service-up, .infra-state-alert,
-.infra-state-restarting, .infra-state-healthy, .infra-log-alert, .infra-log-healthy,
+.infra-service-restarting, .infra-state-restarting, .infra-state-healthy, .infra-log-alert, .infra-log-healthy,
 .infra-metric-high, .infra-metric-healthy, .infra-chart-alert, .infra-chart-healthy { opacity: 0; }
-.infra-phase-alert, .infra-service-down, .infra-state-alert, .infra-log-alert,
-.infra-metric-high, .infra-chart-alert { animation: infra-cycle-alert 16s linear infinite; }
+.infra-phase-alert, .infra-service-down, .infra-log-alert, .infra-metric-high,
+.infra-pressure-bar { animation: infra-cycle-alert 16s linear infinite; }
 .infra-phase-diagnose { animation: infra-cycle-diagnose 16s linear infinite; }
-.infra-phase-restart, .infra-state-restarting { animation: infra-cycle-restart 16s linear infinite; }
-.infra-phase-verify, .infra-service-up, .infra-state-healthy, .infra-log-healthy, .infra-metric-healthy,
-.infra-chart-healthy { animation: infra-cycle-verify 16s linear infinite; }
+.infra-phase-restart, .infra-service-restarting { animation: infra-cycle-restart 16s linear infinite; }
+.infra-phase-verify, .infra-service-up, .infra-log-healthy, .infra-metric-healthy,
+.infra-healthy-bar { animation: infra-cycle-verify 16s linear infinite; }
 .infra-health-light { animation: infra-health-state 16s linear infinite; }
-.infra-scan-beam, .infra-scan-ray, .infra-alert-ring { animation: infra-robot-scan 16s linear infinite; }
-.infra-agent-tool { animation: infra-robot-tool 16s linear infinite; }
+.infra-agent-scan { animation: infra-agent-scan 16s linear infinite; }
+.infra-action-shell { animation: infra-action-focus 16s linear infinite; }
+.infra-simulator-link { animation: infra-link-on 16s linear infinite; }
+.infra-action-block { animation: infra-block-placement 16s cubic-bezier(.3,.8,.2,1) infinite; }
+.infra-agent-reach, .infra-agent-grip { animation: infra-tool-reach 16s linear infinite; }
 .infra-step-1 { animation: infra-step-one 16s linear infinite; }
 .infra-step-2 { animation: infra-step-two 16s linear infinite; }
 .infra-step-3 { animation: infra-step-three 16s linear infinite; }
@@ -164,22 +198,23 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-  .infra-telemetry, .infra-agent-travel, .infra-agent-character, .infra-phase,
-  .infra-service-down, .infra-service-up, .infra-state-alert, .infra-state-restarting,
-  .infra-state-healthy, .infra-log-alert, .infra-log-healthy, .infra-metric-high,
-  .infra-metric-healthy, .infra-chart-alert, .infra-chart-healthy, .infra-health-light,
-  .infra-scan-beam, .infra-scan-ray, .infra-alert-ring, .infra-agent-tool,
+  .infra-evidence-flow, .infra-agent-character, .infra-agent-scan, .infra-action-block,
+  .infra-action-shell, .infra-block-port, .infra-simulator-link, .infra-pressure-bar,
+  .infra-healthy-bar, .infra-agent-reach, .infra-agent-grip, .infra-phase,
+  .infra-service-down, .infra-service-restarting, .infra-service-up,
+  .infra-log-alert, .infra-log-healthy, .infra-metric-high, .infra-metric-healthy,
+  .infra-health-light,
   .infra-step-1, .infra-step-2, .infra-step-3, .infra-step-4 {
     animation: none !important;
     transform: none !important;
   }
-  .infra-phase-alert, .infra-service-down, .infra-state-alert, .infra-log-alert,
-  .infra-metric-high, .infra-chart-alert { opacity: 1 !important; }
-  .infra-phase-diagnose, .infra-phase-restart, .infra-phase-verify, .infra-service-up,
-  .infra-state-restarting, .infra-state-healthy, .infra-log-healthy,
-  .infra-metric-healthy, .infra-chart-healthy { opacity: 0 !important; }
+  .infra-phase-alert, .infra-service-down, .infra-log-alert, .infra-metric-high,
+  .infra-pressure-bar { opacity: 1 !important; }
+  .infra-phase-diagnose, .infra-phase-restart, .infra-phase-verify,
+  .infra-service-restarting, .infra-service-up, .infra-log-healthy,
+  .infra-metric-healthy, .infra-healthy-bar { opacity: 0 !important; }
   .infra-health-light { fill: #b3372a !important; }
-  .infra-scan-beam, .infra-scan-ray, .infra-alert-ring { opacity: .15 !important; }
+  .infra-agent-scan { opacity: .15 !important; }
   .infra-step-1 { opacity: 1 !important; }
   .infra-step-2, .infra-step-3, .infra-step-4 { opacity: .25 !important; }
 }

@@ -56,73 +56,84 @@ export function OperationsPage() {
         <div className="card relative min-h-80 overflow-hidden p-5 sm:min-h-[390px]" aria-label="Animated Nginx incident response scene">
           <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(var(--color-ink-faint) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
           <div className="relative flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]">
-            <span>Incident simulator · nginx</span><span className="rounded border border-[var(--color-paper-deep)] px-2 py-1">isolated lab</span>
+            <span>Incident simulator · nginx memory pressure</span><span className="rounded border border-[var(--color-paper-deep)] px-2 py-1">isolated lab</span>
           </div>
-          <svg className="relative mt-3 h-[285px] w-full sm:h-[325px]" viewBox="0 0 600 355" role="img" aria-label="A small operations robot investigates a simulated Nginx incident: it detects high memory pressure, reads logs and metrics, performs one constrained restart, and verifies the service is healthy">
-            <path d="M28 289H572" stroke="var(--color-paper-deep)" strokeWidth="2" />
-            <path d="M160 224C225 224 279 177 401 160" fill="none" stroke="var(--color-paper-deep)" strokeWidth="2" strokeDasharray="5 7" />
-            <path className="infra-telemetry" d="M160 224C225 224 279 177 401 160" fill="none" stroke="var(--color-signal)" strokeOpacity=".75" strokeWidth="2" strokeDasharray="5 9" />
+          <svg className="relative mt-3 h-[285px] w-full sm:h-[325px]" viewBox="0 0 600 355" role="img" aria-label="The agent diagnoses Nginx memory pressure, selects the allowlisted restart_service block, connects it to the isolated simulator, then verifies memory falls from 93 percent to 22 percent and Nginx returns healthy">
+            <rect x="22" y="17" width="370" height="35" rx="5" fill="var(--color-paper)" />
+            <text x="34" y="39" fill="var(--color-signal)" fontFamily="monospace" fontSize="10" letterSpacing="1.2" className="infra-phase infra-phase-alert">INCIDENT · MEMORY PRESSURE 93%</text>
+            <text x="34" y="39" fill="var(--color-amber-deep)" fontFamily="monospace" fontSize="10" letterSpacing="1.2" className="infra-phase infra-phase-diagnose">DIAGNOSIS · METRICS + WORKER LOGS AGREE</text>
+            <text x="34" y="39" fill="var(--color-signal)" fontFamily="monospace" fontSize="10" letterSpacing="1.2" className="infra-phase infra-phase-restart">REMEDIATION · RESTART BLOCK CONNECTED</text>
+            <text x="34" y="39" fill="var(--color-moss)" fontFamily="monospace" fontSize="10" letterSpacing="1.2" className="infra-phase infra-phase-verify">VERIFIED · SERVICE HEALTHY AT 22%</text>
 
-            <rect x="204" y="66" width="154" height="66" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
-            <text x="218" y="85" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="10" letterSpacing="1.5">MEMORY PRESSURE</text>
-            <text x="218" y="116" fill="var(--color-ink)" fontFamily="monospace" fontSize="24" fontWeight="700" className="infra-metric-high">93%</text>
-            <text x="218" y="116" fill="var(--color-moss)" fontFamily="monospace" fontSize="24" fontWeight="700" className="infra-metric-healthy">22%</text>
-            <path d="M291 111l12-13 10 7 18-22" fill="none" stroke="var(--color-signal)" strokeWidth="2" className="infra-chart-alert" />
-            <path d="M291 111l12-5 10 1 18-8" fill="none" stroke="var(--color-moss)" strokeWidth="2" className="infra-chart-healthy" />
+            <path d="M179 112C210 112 217 143 250 161M179 193C211 193 218 180 250 172" fill="none" stroke="var(--color-paper-deep)" strokeWidth="2" strokeDasharray="4 6" />
+            <path className="infra-evidence-flow" d="M179 112C210 112 217 143 250 161M179 193C211 193 218 180 250 172" fill="none" stroke="var(--color-signal)" strokeWidth="2" strokeDasharray="5 8" />
+            <path d="M352 167H412" stroke="var(--color-paper-deep)" strokeWidth="2" strokeDasharray="4 6" />
+            <path d="M544 203V276" stroke="var(--color-paper-deep)" strokeWidth="2" strokeDasharray="4 6" />
+            <path className="infra-simulator-link" d="M544 203V276" stroke="var(--color-moss)" strokeWidth="3" strokeDasharray="6 5" />
 
-            <rect x="204" y="150" width="154" height="65" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
-            <text x="218" y="170" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="10" letterSpacing="1.5">WORKER LOG</text>
-            <text x="218" y="191" fill="var(--color-brick)" fontFamily="monospace" fontSize="9" className="infra-log-alert">memory pressure &gt; 90%</text>
-            <text x="218" y="191" fill="var(--color-moss)" fontFamily="monospace" fontSize="9" className="infra-log-healthy">health check · 200 OK</text>
-            <path d="M218 201H340" stroke="var(--color-paper-deep)" strokeWidth="2" />
+            <rect x="24" y="72" width="155" height="78" rx="7" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <text x="37" y="91" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="9" letterSpacing="1.2">METRICS · NGINX</text>
+            <text x="37" y="125" fill="var(--color-brick)" fontFamily="monospace" fontSize="25" fontWeight="700" className="infra-metric-high">93%</text>
+            <text x="37" y="125" fill="var(--color-moss)" fontFamily="monospace" fontSize="25" fontWeight="700" className="infra-metric-healthy">22%</text>
+            <text x="94" y="124" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="9">MEMORY</text>
+            <path d="M38 137H164" stroke="var(--color-paper-deep)" strokeWidth="3" />
+            <path d="M38 137H153" stroke="var(--color-brick)" strokeWidth="3" className="infra-pressure-bar" />
+            <path d="M38 137H66" stroke="var(--color-moss)" strokeWidth="3" className="infra-healthy-bar" />
 
-            <rect x="391" y="81" width="166" height="174" rx="9" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
-            <path d="M391 111H557" stroke="var(--color-paper-deep)" strokeWidth="2" />
-            <text x="407" y="101" fill="var(--color-ink)" fontFamily="monospace" fontSize="11" fontWeight="700" letterSpacing="1.5">SERVICE NODE</text>
-            <circle cx="535" cy="98" r="5" className="infra-health-light" />
-            <rect x="405" y="123" width="138" height="47" rx="5" fill="var(--color-paper)" stroke="var(--color-paper-deep)" />
-            <text x="417" y="144" fill="var(--color-ink)" fontFamily="monospace" fontSize="12" fontWeight="700">NGINX</text>
-            <text x="417" y="160" fill="var(--color-brick)" fontFamily="monospace" fontSize="9" className="infra-service-down">503 · UNAVAILABLE</text>
-            <text x="417" y="160" fill="var(--color-moss)" fontFamily="monospace" fontSize="9" className="infra-service-up">200 · HEALTHY</text>
-            <rect x="405" y="181" width="138" height="57" rx="5" fill="var(--color-paper)" stroke="var(--color-paper-deep)" />
-            <text x="417" y="200" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="9" letterSpacing="1">SIMULATOR STATE</text>
-            <text x="417" y="220" fill="var(--color-brick)" fontFamily="monospace" fontSize="10" className="infra-state-alert">DEGRADED</text>
-            <text x="417" y="220" fill="var(--color-amber-deep)" fontFamily="monospace" fontSize="10" className="infra-state-restarting">RESTARTING</text>
-            <text x="417" y="220" fill="var(--color-moss)" fontFamily="monospace" fontSize="10" className="infra-state-healthy">RECOVERY VERIFIED</text>
-            <circle className="infra-alert-ring" cx="474" cy="146" r="55" fill="none" stroke="var(--color-signal)" strokeWidth="2" />
+            <rect x="24" y="164" width="155" height="57" rx="7" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <text x="37" y="182" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="9" letterSpacing="1.2">WORKER LOG</text>
+            <text x="37" y="202" fill="var(--color-brick)" fontFamily="monospace" fontSize="9" className="infra-log-alert">memory pressure &gt; 90%</text>
+            <text x="37" y="202" fill="var(--color-moss)" fontFamily="monospace" fontSize="9" className="infra-log-healthy">health check · 200 OK</text>
+            <text x="37" y="215" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="8">evidence collected</text>
 
-            <rect x="24" y="20" width="334" height="33" rx="5" fill="var(--color-paper)" />
-            <text x="34" y="41" fill="var(--color-signal)" fontFamily="monospace" fontSize="10" letterSpacing="1.5" className="infra-phase infra-phase-alert">01 · INCIDENT DETECTED</text>
-            <text x="34" y="41" fill="var(--color-amber-deep)" fontFamily="monospace" fontSize="10" letterSpacing="1.5" className="infra-phase infra-phase-diagnose">02 · READING METRICS + LOGS</text>
-            <text x="34" y="41" fill="var(--color-signal)" fontFamily="monospace" fontSize="10" letterSpacing="1.5" className="infra-phase infra-phase-restart">03 · ALLOWLISTED RESTART</text>
-            <text x="34" y="41" fill="var(--color-moss)" fontFamily="monospace" fontSize="10" letterSpacing="1.5" className="infra-phase infra-phase-verify">04 · HEALTH CHECK PASSED</text>
+            <rect x="412" y="78" width="162" height="126" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <text x="426" y="98" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="9" letterSpacing="1.1">SIMULATED SERVICE</text>
+            <path d="M426 108H560" stroke="var(--color-paper-deep)" strokeWidth="2" />
+            <rect x="426" y="119" width="134" height="69" rx="5" fill="var(--color-paper)" stroke="var(--color-paper-deep)" />
+            <rect x="435" y="130" width="18" height="45" rx="3" fill="var(--color-paper-deep)" />
+            <path d="M439 137H449M439 144H449M439 151H449M439 158H449M439 165H449" stroke="var(--color-ink-faint)" strokeWidth="2" />
+            <text x="462" y="145" fill="var(--color-ink)" fontFamily="monospace" fontSize="12" fontWeight="700">NGINX</text>
+            <circle cx="548" cy="138" r="4" className="infra-health-light" />
+            <text x="462" y="163" fill="var(--color-brick)" fontFamily="monospace" fontSize="8.5" className="infra-service-down">DEGRADED</text>
+            <text x="462" y="163" fill="var(--color-amber-deep)" fontFamily="monospace" fontSize="8.5" className="infra-service-restarting">RESTARTING</text>
+            <text x="462" y="163" fill="var(--color-moss)" fontFamily="monospace" fontSize="8.5" className="infra-service-up">HEALTHY · 200</text>
+            <text x="426" y="198" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="8">isolated from Docker host</text>
 
-            <path d="M58 318H535" stroke="var(--color-paper-deep)" strokeWidth="2" />
-            <g fontFamily="monospace" fontSize="9" textAnchor="middle" letterSpacing=".5">
-              <circle cx="66" cy="318" r="7" fill="var(--color-signal)" className="infra-step infra-step-1" /><text x="66" y="342" fill="var(--color-ink-soft)">OBSERVE</text>
-              <circle cx="224" cy="318" r="7" fill="var(--color-signal)" className="infra-step infra-step-2" /><text x="224" y="342" fill="var(--color-ink-soft)">DIAGNOSE</text>
-              <circle cx="382" cy="318" r="7" fill="var(--color-signal)" className="infra-step infra-step-3" /><text x="382" y="342" fill="var(--color-ink-soft)">RECOVER</text>
-              <circle cx="535" cy="318" r="7" fill="var(--color-moss)" className="infra-step infra-step-4" /><text x="535" y="342" fill="var(--color-ink-soft)">VERIFY</text>
+            <text x="24" y="242" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="8" letterSpacing="1.2">ALLOWLISTED TOOL</text>
+            <rect x="346" y="232" width="228" height="74" rx="8" fill="none" stroke="var(--color-line)" strokeWidth="1.5" strokeDasharray="5 5" />
+            <text x="359" y="248" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="8" letterSpacing="1.1">SIMULATOR ACTION SLOT</text>
+            <circle cx="544" cy="242" r="5" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" className="infra-slot-port" />
+            <g className="infra-action-block">
+              <rect x="24" y="252" width="196" height="48" rx="6" fill="var(--color-card)" stroke="var(--color-signal)" strokeWidth="2" className="infra-action-shell" />
+              <path d="M39 268L46 275L39 282M51 282L58 268" fill="none" stroke="var(--color-signal)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <text x="68" y="272" fill="var(--color-ink)" fontFamily="monospace" fontSize="10" fontWeight="700">restart_service</text>
+              <text x="68" y="288" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="8">service: nginx · simulator</text>
+              <circle cx="220" cy="276" r="4" fill="var(--color-signal)" className="infra-block-port" />
             </g>
 
-            <g className="infra-agent-travel">
-              <g className="infra-agent-character">
-                <path className="infra-scan-beam" d="M121 218L329 128L329 285Z" fill="var(--color-signal)" />
-                <path d="M121 218L405 155" fill="none" stroke="var(--color-signal)" strokeWidth="1.5" strokeDasharray="3 7" className="infra-scan-ray" />
-                <line x1="102" y1="190" x2="102" y2="178" stroke="var(--color-line)" strokeWidth="3" />
-                <circle cx="102" cy="176" r="4" fill="var(--color-signal)" />
-                <rect x="72" y="190" width="65" height="45" rx="12" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="3" />
-                <circle cx="91" cy="211" r="5" fill="var(--color-ink)" /><circle cx="117" cy="211" r="5" fill="var(--color-ink)" />
-                <circle cx="92" cy="210" r="2" fill="var(--color-signal)" /><circle cx="118" cy="210" r="2" fill="var(--color-signal)" />
-                <rect x="82" y="235" width="46" height="24" rx="7" fill="var(--color-paper-deep)" stroke="var(--color-line)" strokeWidth="2" />
-                <circle cx="91" cy="261" r="8" fill="var(--color-ink)" /><circle cx="119" cy="261" r="8" fill="var(--color-ink)" />
-                <circle cx="91" cy="261" r="3" fill="var(--color-paper)" /><circle cx="119" cy="261" r="3" fill="var(--color-paper)" />
-                <g className="infra-agent-tool"><path d="M130 239L147 226" stroke="var(--color-line)" strokeWidth="4" strokeLinecap="round" /><path d="M143 222L151 230M147 218L155 226" stroke="var(--color-signal)" strokeWidth="3" strokeLinecap="round" /></g>
-                <path d="M80 269H132" stroke="var(--color-line)" strokeWidth="2" strokeLinecap="round" />
-              </g>
+            <g className="infra-agent-character">
+              <path className="infra-agent-scan" d="M277 171L180 91L182 221Z" fill="var(--color-signal)" />
+              <line x1="273" y1="174" x2="270" y2="159" stroke="var(--color-line)" strokeWidth="3" />
+              <circle cx="270" cy="156" r="4" fill="var(--color-signal)" />
+              <rect x="246" y="173" width="58" height="43" rx="11" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="3" />
+              <circle cx="264" cy="193" r="5" fill="var(--color-ink)" /><circle cx="286" cy="193" r="5" fill="var(--color-ink)" />
+              <circle cx="265" cy="192" r="2" fill="var(--color-signal)" /><circle cx="287" cy="192" r="2" fill="var(--color-signal)" />
+              <rect x="254" y="216" width="43" height="21" rx="6" fill="var(--color-paper-deep)" stroke="var(--color-line)" strokeWidth="2" />
+              <circle cx="262" cy="239" r="7" fill="var(--color-ink)" /><circle cx="291" cy="239" r="7" fill="var(--color-ink)" />
+              <path className="infra-agent-reach" d="M298 218L326 244L333 244" fill="none" stroke="var(--color-line)" strokeWidth="4" strokeLinecap="round" />
+              <circle cx="335" cy="244" r="5" fill="var(--color-signal)" className="infra-agent-grip" />
+              <text x="274" y="255" fill="var(--color-ink-faint)" fontFamily="monospace" fontSize="8" textAnchor="middle">LOCAL AGENT</text>
+            </g>
+
+            <path d="M55 324H545" stroke="var(--color-paper-deep)" strokeWidth="2" />
+            <g fontFamily="monospace" fontSize="8" textAnchor="middle" letterSpacing=".6">
+              <circle cx="66" cy="324" r="6" fill="var(--color-signal)" className="infra-step infra-step-1" /><text x="66" y="345" fill="var(--color-ink-soft)">OBSERVE</text>
+              <circle cx="224" cy="324" r="6" fill="var(--color-signal)" className="infra-step infra-step-2" /><text x="224" y="345" fill="var(--color-ink-soft)">DIAGNOSE</text>
+              <circle cx="382" cy="324" r="6" fill="var(--color-signal)" className="infra-step infra-step-3" /><text x="382" y="345" fill="var(--color-ink-soft)">APPLY BLOCK</text>
+              <circle cx="535" cy="324" r="6" fill="var(--color-moss)" className="infra-step infra-step-4" /><text x="535" y="345" fill="var(--color-ink-soft)">VERIFY</text>
             </g>
           </svg>
-          <p className="relative -mt-1 font-mono text-[9px] uppercase tracking-wider text-[var(--color-ink-faint)]">Agent actions stay inside the simulator · Docker remains untouched</p>
+          <p className="relative -mt-1 font-mono text-[9px] uppercase tracking-wider text-[var(--color-ink-faint)]">One allowlisted restart is wired to simulator state only · Docker remains untouched</p>
         </div>
       </section>
 

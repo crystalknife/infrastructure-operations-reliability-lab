@@ -145,7 +145,7 @@ describe("infrastructure route", () => {
   it("renders a distinct operations overview with a link to the incident lab", async () => {
     at("/", <Routes>{routes}</Routes>);
     await waitFor(() => expect(document.body.textContent).toContain("Latest evaluation"));
-    expect(document.body.textContent).toContain("Control room");
+    expect(document.body.textContent).toContain("Making infrastructure operations measurable.");
     expect(document.body.textContent).toContain("Recovery verified");
     expect(document.body.textContent).toContain("Open incident lab");
     expect(screen.getByRole("link", { name: /Open incident lab/ }).getAttribute("href")).toBe("/infrastructure");

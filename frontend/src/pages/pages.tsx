@@ -43,72 +43,85 @@ export function OperationsPage() {
 
   return (
     <LabShell>
-      <section className="grid gap-6 border-b border-[var(--color-ink-faint)] pb-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+      <section className="grid gap-8 py-4 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-8">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-signal)]">Control room · local lab</p>
-          <h2 className="font-display mt-3 max-w-3xl text-4xl font-bold leading-[1.02] tracking-tight sm:text-6xl">
-            Infrastructure operations, under control.
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-signal)]">Infrastructure reliability · local lab</p>
+          <h2 className="font-display mt-5 max-w-4xl text-5xl font-bold leading-[0.98] tracking-tight sm:text-7xl">
+            Making infrastructure operations measurable.
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-soft)] sm:text-base">
-            A safe workspace for incident response experiments, built on Agent Reliability Lab. The agent works against an isolated simulator; local monitoring is available alongside it.
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--color-ink-soft)] sm:text-lg">
+            A controlled lab for testing how agents investigate service incidents, choose safe actions, and verify recovery. Built on the Agent Reliability Lab harness and extended for infrastructure operations.
           </p>
         </div>
-        <div className="border-l-2 border-[var(--color-signal)] pl-4 font-mono text-xs leading-relaxed text-[var(--color-ink-soft)]">
-          <p className="uppercase tracking-wider text-[var(--color-ink-faint)]">Operational boundary</p>
-          <p className="mt-2">Simulated recovery and Docker monitoring are separate.</p>
-          <p>No host shell · no Docker socket · deterministic checks.</p>
+        <div className="card relative min-h-64 overflow-hidden p-5 sm:min-h-80" aria-label="Service observability map">
+          <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(var(--color-ink-faint) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+          <div className="relative flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]">
+            <span>Live lab map</span><span className="flex items-center gap-2"><i className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-signal)]" /> local</span>
+          </div>
+          <svg className="relative mt-6 h-52 w-full sm:h-64" viewBox="0 0 520 250" role="img" aria-label="Agent observes service metrics and logs before a verified simulator recovery">
+            <path d="M115 126H405M260 65V188" stroke="currentColor" strokeOpacity=".22" strokeWidth="2" strokeDasharray="5 7" />
+            <path d="M115 126H405M260 65V188" stroke="var(--color-signal)" strokeOpacity=".72" strokeWidth="2" />
+            <circle cx="260" cy="126" r="64" fill="none" stroke="var(--color-signal)" strokeOpacity=".2" strokeWidth="1" />
+            <circle cx="260" cy="126" r="48" fill="var(--color-paper)" stroke="var(--color-line)" strokeWidth="2" />
+            <circle cx="260" cy="126" r="8" fill="var(--color-signal)" />
+            <rect x="34" y="93" width="142" height="66" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <rect x="344" y="93" width="142" height="66" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <rect x="189" y="12" width="142" height="54" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <rect x="189" y="187" width="142" height="54" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <g fill="currentColor" fontFamily="monospace" textAnchor="middle"><text x="105" y="122" fontSize="12">NGINX SERVICE</text><text x="105" y="141" fontSize="10" opacity=".6">health · logs</text><text x="415" y="122" fontSize="12">EVALUATOR</text><text x="415" y="141" fontSize="10" opacity=".6">deterministic</text><text x="260" y="35" fontSize="12">LOCAL AGENT</text><text x="260" y="55" fontSize="10" opacity=".6">Qwen · ReAct</text><text x="260" y="210" fontSize="12">TRAJECTORY</text><text x="260" y="229" fontSize="10" opacity=".6">evidence · actions</text></g>
+          </svg>
         </div>
       </section>
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <article className="card p-5 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">Latest evaluation</p>
-              {incident ? (
-                <>
-                  <h3 className="font-display mt-2 text-2xl font-bold">{incident.passed ? "Recovery verified" : "Review required"}</h3>
-                  <p className="mt-1 font-mono text-xs text-[var(--color-ink-soft)]">{incident.scenario} · {incident.model} · {incident.steps} steps</p>
-                </>
-              ) : <p className="mt-2 font-mono text-sm text-[var(--color-ink-faint)]">No incident result recorded yet.</p>}
-            </div>
-            {incident && <span className="rounded-full bg-[var(--color-moss)] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--color-card)]">{incident.passed ? "pass" : "review"}</span>}
-          </div>
-          <Link to="/infrastructure" className="mt-6 inline-flex items-center gap-2 border-t border-[var(--color-paper-deep)] pt-4 font-mono text-xs uppercase tracking-wider hover:text-[var(--color-signal)]">
-            Open incident lab <span aria-hidden="true">→</span>
-          </Link>
-        </article>
+      <section className="mt-12">
+        <h3 className="font-display mb-5 text-2xl font-bold">What we’re building</h3>
+        <div className="space-y-4">
+          {[
+            ["01", "Reproducible incident scenarios", "Fixed Nginx faults and monitoring signals create repeatable conditions for comparing investigation and recovery behavior."],
+            ["02", "Evidence-first failure analysis", "Every diagnostic call and observation is captured so it is possible to see where a run succeeded, stalled, or chose the wrong action."],
+            ["03", "Safe recovery evaluation", "The agent has read-only diagnostics and one allowlisted simulator restart. A deterministic check verifies service health after the action."],
+          ].map(([n, title, body]) => <article key={n} className="card flex gap-5 p-5 sm:gap-7 sm:p-7"><span className="font-mono text-3xl font-bold text-[var(--color-signal)]">{n}</span><div><h4 className="font-display text-xl font-bold">{title}</h4><p className="mt-2 max-w-4xl text-sm leading-relaxed text-[var(--color-ink-soft)]">{body}</p></div></article>)}
+        </div>
+      </section>
 
-        <article className="card p-5 sm:p-6">
-          <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">Local monitoring stack</p>
-          <h3 className="font-display mt-2 text-2xl font-bold">Observe the demo service</h3>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Optional Docker Nginx and Prometheus endpoints. They are not controlled by the agent.</p>
-          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs">
-            <a className="underline decoration-[var(--color-signal)] underline-offset-4 hover:text-[var(--color-signal)]" href="http://127.0.0.1:8088/health" target="_blank" rel="noreferrer">Nginx health ↗</a>
-            <a className="underline decoration-[var(--color-signal)] underline-offset-4 hover:text-[var(--color-signal)]" href="http://127.0.0.1:9090/targets" target="_blank" rel="noreferrer">Prometheus targets ↗</a>
-          </div>
+      <section className="mt-14">
+        <h3 className="font-display mb-5 text-2xl font-bold">About the project</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[
+            ["Why this lab exists", "A plausible final answer is not enough for incident response. This lab records what the agent inspected, which evidence informed its action, and whether recovery was actually verified."],
+            ["Built on Agent Reliability Lab", "The project reuses the Agent Reliability Lab’s local model adapter, ReAct loop, tool dispatch, trajectory recording, and evaluation approach, then adds an infrastructure incident environment."],
+            ["The incident environment", "A deterministic simulator represents Nginx availability, metrics, and logs. An optional Docker Nginx and Prometheus stack provides a separate monitoring surface."],
+            ["How a run is scored", "The Python evaluator checks required evidence, permitted actions, termination, and post-action health. It does not ask another language model to decide whether recovery passed."],
+            ["What each run records", "The result includes the scenario, selected model, action sequence, step count, evidence status, termination reason, and recovery verdict for the dashboard."],
+            ["Current scope", "The current work focuses on local Qwen runs and controlled Nginx incidents. The simulator is authoritative; the optional Docker service is not modified by agent actions."],
+          ].map(([title, body]) => <article key={title} className="card min-h-44 p-5 sm:p-6"><h4 className="font-display text-lg font-bold">{title}</h4><p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-soft)]">{body}</p></article>)}
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <h3 className="font-display mb-5 text-2xl font-bold">Explore the repository</h3>
+        <a href="https://github.com/crystalknife/infrastructure-operations-reliability-lab" target="_blank" rel="noreferrer" className="card flex flex-wrap items-center justify-between gap-6 p-5 sm:p-7">
+          <div><h4 className="font-mono text-lg font-bold">crystalknife/infrastructure-operations-reliability-lab</h4><p className="mt-2 max-w-4xl text-sm leading-relaxed text-[var(--color-ink-soft)]">The separate infrastructure lab repository. Its starting point is the Agent Reliability Lab; infrastructure code and documentation are developed here without changing the original project.</p></div>
+          <span className="rounded border border-[var(--color-line)] px-4 py-3 font-mono text-xs font-bold">Explore repo →</span>
+        </a>
+      </section>
+
+      <section className="mt-14">
+        <h3 className="font-display mb-5 text-2xl font-bold">About the developer</h3>
+        <article className="card flex items-center gap-5 p-5 sm:p-7"><span className="text-4xl text-[var(--color-signal)]" aria-hidden="true">◎</span><div><h4 className="font-mono text-lg font-bold">CRYSTALKNIFE</h4><p className="mt-1 text-sm text-[var(--color-ink-soft)]">Maintainer of the Agent Reliability Lab and this infrastructure operations extension.</p><a className="mt-2 inline-block font-mono text-xs underline underline-offset-4" href="https://github.com/crystalknife" target="_blank" rel="noreferrer">GitHub profile →</a></div></article>
+      </section>
+
+      <section className="mt-14">
+        <h3 className="font-display mb-5 text-2xl font-bold">Explore operations</h3>
+        <article className="card grid gap-6 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7">
+          <div><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]">Latest evaluation</p><h4 className="font-display mt-2 text-3xl font-bold">{incident ? (incident.passed ? "Recovery verified." : "Review the run.") : "Run the first incident."}</h4><p className="mt-2 text-sm text-[var(--color-ink-soft)]">{incident ? `${incident.scenario} · ${incident.model} · ${incident.steps} steps` : "Start a local Qwen evaluation and return here to inspect its result."}</p><div className="mt-5 flex flex-wrap gap-5 font-mono text-xs"><a className="underline decoration-[var(--color-signal)] underline-offset-4" href="http://127.0.0.1:8088/health" target="_blank" rel="noreferrer">Nginx health ↗</a><a className="underline decoration-[var(--color-signal)] underline-offset-4" href="http://127.0.0.1:9090/targets" target="_blank" rel="noreferrer">Prometheus targets ↗</a></div></div>
+          <Link to="/infrastructure" className="rounded-md bg-[var(--color-ink)] px-5 py-3 text-center font-mono text-xs uppercase tracking-wider text-[var(--color-card)] hover:bg-[var(--color-signal)]">Open incident lab →</Link>
         </article>
       </section>
 
-      <section className="mt-10">
-        <SectionTitle index="01" title="Lab map" hint="one reliability loop · separate evidence surfaces" />
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Link to="/infrastructure" className="card block p-5 hover:-translate-y-0.5">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">01 · incidents</p>
-            <h3 className="font-display mt-2 text-xl font-bold">Incident Lab</h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Run fixed Nginx faults, inspect trajectories, and see deterministic recovery checks.</p>
-          </Link>
-          <Link to="/experiments" className="card block p-5 hover:-translate-y-0.5">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">02 · foundation</p>
-            <h3 className="font-display mt-2 text-xl font-bold">Agent evaluations</h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Explore the Agent Reliability Lab experiments and their recorded model behavior.</p>
-          </Link>
-          <article className="card p-5">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">03 · safeguards</p>
-            <h3 className="font-display mt-2 text-xl font-bold">Constrained by design</h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Read-only diagnostics, one allowlisted simulator restart, and health verification after action.</p>
-          </article>
-        </div>
+      <section className="mt-14">
+        <h3 className="font-display mb-5 text-2xl font-bold">Get involved</h3>
+        <article className="card p-5 sm:p-7"><h4 className="font-display text-3xl font-bold">Interested in contributing?</h4><p className="mt-3 max-w-4xl text-sm leading-relaxed text-[var(--color-ink-soft)]">Explore the architecture, runbook, evaluation plan, and provenance notes in the repository. Suggestions for new incident scenarios and evaluation methods are welcome.</p><Link to="/infrastructure" className="mt-5 inline-flex rounded-md bg-[var(--color-ink)] px-4 py-3 font-mono text-xs uppercase tracking-wider text-[var(--color-card)] hover:bg-[var(--color-signal)]">Visit the lab →</Link></article>
       </section>
     </LabShell>
   );

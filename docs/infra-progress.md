@@ -22,6 +22,9 @@
 - Reworked the frontend identity and navigation around Infrastructure Operations & Reliability while retaining the inherited cream/ink/orange palette, typography, and tactile cards. The root page now presents the incident workflow, latest evaluator result, explicit simulator-versus-Docker boundary, local Nginx/Prometheus links, and Qwen run instructions. Historical Agent Reliability experiments remain linked separately.
 - Added a dashboard refresh control so new JSON artifacts can be loaded without manually editing frontend code or reloading the whole page.
 - Expanded the simulator and scenario catalog with `nginx-memory-pressure` (degraded at 93% memory); evaluator now requires both logs and metrics before remediation.
-- Live Qwen3-4B passed the new memory-pressure case in 5 steps. Latest summary and trajectory identify `local:qwen3-4b`, with verified recovery.
+- Expanded the incident suite to five scenarios with scenario-specific simulated restart, configuration rollback, and scrape-target restoration; added deterministic recovery and cross-scenario safety checks.
+- Ran local Qwen3-4B against the three new cases. Elevated latency, configuration drift, and Prometheus scrape loss each passed with logs and metrics collected, the matching simulator-only action, and the appropriate post-action verification.
+- Expanded-suite verification: Python suite 254 passed; frontend suite 14 passed; TypeScript typecheck and Vite production build passed. The new scenario outcomes are recorded in `results/infra-trajectories.jsonl`; the latest dashboard artifact is the scrape-loss Qwen run.
+- Live Qwen3-4B passed the memory-pressure case in 5 steps before the broader incident suite was added.
 - Verification after these changes: Python suite 252 passed; frontend suite 22 passed; TypeScript typecheck passed; production build passed. Build still prints existing dependency warnings that `use client` directives are ignored by Vite.
 - GitHub CLI authentication works through the Windows keyring when network access is available. Authenticated repo inventory was checked before creating the requested separate repository.

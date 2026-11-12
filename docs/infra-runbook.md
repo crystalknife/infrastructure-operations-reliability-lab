@@ -14,6 +14,9 @@ Run the deterministic end-to-end incident (no model server or Docker needed):
 ```powershell
 python -m minilab.infra --model scripted
 python -m minilab.infra --model scripted --scenario nginx-memory-pressure
+python -m minilab.infra --model scripted --scenario nginx-elevated-latency
+python -m minilab.infra --model scripted --scenario nginx-config-drift
+python -m minilab.infra --model scripted --scenario prometheus-scrape-loss
 ```
 
 It appends the full trajectory to `results/infra-trajectories.jsonl`, updates `frontend/public/data/infra-latest.json`, and prints the deterministic recovery result. The Observatory integration is available at `/infrastructure` after `cd frontend; npm ci; npm run dev`.
@@ -23,6 +26,9 @@ For a local Qwen run, start the already configured `llama-server` separately at 
 ```powershell
 python -m minilab.infra --model local:qwen3-4b
 python -m minilab.infra --model local:qwen3-4b --scenario nginx-memory-pressure
+python -m minilab.infra --model local:qwen3-4b --scenario nginx-elevated-latency
+python -m minilab.infra --model local:qwen3-4b --scenario nginx-config-drift
+python -m minilab.infra --model local:qwen3-4b --scenario prometheus-scrape-loss
 ```
 
 The adapter records the selected model in the trajectory. A Qwen run requires the model server and is not part of the deterministic test.

@@ -285,20 +285,23 @@ export function InfrastructurePage() {
       <section className="mt-10" aria-label="Available incident scenarios">
         <SectionTitle index="03" title="Scenario catalog" hint="fixed faults · repeatable outcomes" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <article className="card p-5">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">01 · availability</p>
-            <h3 className="font-display mt-1 text-xl font-bold">Nginx unavailable</h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Service starts stopped. Inspect health, metrics, and worker logs; restart once and verify health.</p>
-            <code className="mt-4 block overflow-x-auto border-t border-[var(--color-paper-deep)] pt-3 font-mono text-[11px]">--scenario nginx-unavailable</code>
-          </article>
-          <article className="card p-5">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">02 · resource pressure</p>
-            <h3 className="font-display mt-1 text-xl font-bold">Nginx memory pressure</h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Service starts degraded at 93% memory. Evidence must be collected before the simulator restart and a healthy inspection.</p>
-            <code className="mt-4 block overflow-x-auto border-t border-[var(--color-paper-deep)] pt-3 font-mono text-[11px]">--scenario nginx-memory-pressure</code>
-          </article>
+          {[
+            ["01 · availability", "Nginx unavailable", "Service starts stopped. Inspect health, metrics, and worker logs; restart once and verify health.", "nginx-unavailable", "restart_service"],
+            ["02 · resource pressure", "Nginx memory pressure", "Memory starts at 93%. Gather logs and metrics, restart the simulated service, and verify recovery.", "nginx-memory-pressure", "restart_service"],
+            ["03 · latency", "Nginx elevated latency", "A stalled worker drives CPU to 96%, latency to 2,400 ms, and errors to 18%. Diagnose, restart, and recheck.", "nginx-elevated-latency", "restart_service"],
+            ["04 · configuration", "Nginx configuration drift", "An unsafe revision raises request errors. Roll back to the fixed known-good simulator revision and verify.", "nginx-config-drift", "rollback_config"],
+            ["05 · observability", "Prometheus scrape loss", "Nginx remains healthy while its scrape target is down. Restore the simulated target and verify monitoring separately.", "prometheus-scrape-loss", "restore_scrape_target"],
+          ].map(([category, title, detail, scenario, action]) => (
+            <article key={scenario} className="card p-5">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">{category}</p>
+              <h3 className="font-display mt-1 text-xl font-bold">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">{detail}</p>
+              <code className="mt-4 block overflow-x-auto border-t border-[var(--color-paper-deep)] pt-3 font-mono text-[11px]">--scenario {scenario}</code>
+              <p className="mt-2 font-mono text-[10px] text-[var(--color-ink-faint)]">simulated allowlist · {action}</p>
+            </article>
+          ))}
         </div>
-        <p className="mt-3 font-mono text-[10px] leading-relaxed text-[var(--color-ink-faint)]">Both incidents use the same restricted tool boundary and deterministic recovery checks. Docker Nginx remains an independent observation target.</p>
+        <p className="mt-3 font-mono text-[10px] leading-relaxed text-[var(--color-ink-faint)]">All five scenarios use fixed simulator state, collect logs and metrics before remediation, and require a separate post-action verification. Docker Nginx remains an independent observation target.</p>
       </section>
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr]">

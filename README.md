@@ -8,9 +8,9 @@ A local lab for testing how AI agents investigate infrastructure incidents, gath
 
 ## What it does
 
-- Runs two deterministic Nginx incidents through the lab’s existing ReAct loop: unavailable service and high memory pressure, including with local Qwen through llama.cpp.
-- Gives the agent read-only service, metrics, and log tools plus one allowlisted simulator-only restart.
-- Requires collected logs and metrics, exactly one restart, and a post-restart healthy inspection before the deterministic evaluator passes a run.
+- Runs five deterministic incidents through the lab’s existing ReAct loop: Nginx unavailable, memory pressure, elevated latency, configuration drift, and Prometheus scrape loss.
+- Gives the agent read-only diagnostics plus scenario-gated simulator actions: restart, configuration rollback, or scrape-target restoration.
+- Requires collected logs and metrics, exactly one matching action, and separate service or monitoring verification before the deterministic evaluator passes a run.
 - Records every run to `results/infra-trajectories.jsonl` and writes the latest summary to `frontend/public/data/infra-latest.json`.
 - Provides an infrastructure operations home page with the latest result, action sequence, safety boundaries, run instructions, and links to local Nginx and Prometheus.
 - Includes an optional loopback-only Docker Compose stack with Nginx and Prometheus for local observation.
@@ -41,6 +41,9 @@ To run the scripted harness control (no model server required):
 ```powershell
 $env:PYTHONPATH = ".\src"
 .\.venv\Scripts\python.exe -m minilab.infra --model scripted
+.\.venv\Scripts\python.exe -m minilab.infra --model scripted --scenario nginx-elevated-latency
+.\.venv\Scripts\python.exe -m minilab.infra --model scripted --scenario nginx-config-drift
+.\.venv\Scripts\python.exe -m minilab.infra --model scripted --scenario prometheus-scrape-loss
 ```
 
 ## Start the Observatory
@@ -70,11 +73,11 @@ Open Nginx health at `http://127.0.0.1:8088/health` and Prometheus targets at `h
 
 ## How a run is scored
 
-The current scenarios start with simulated Nginx unavailable or degraded by high memory use. A passing trajectory must:
+Each scenario has a fixed simulated fault and a narrowly permitted recovery action. A passing trajectory must:
 
 1. Inspect Nginx and collect metrics and logs before taking action.
-2. Call the single approved restart exactly once.
-3. Inspect the service again and observe `healthy` after that restart.
+2. Call exactly one action allowed for that scenario: restart for availability, pressure, or latency; rollback for configuration drift; or restore the scrape target for scrape loss.
+3. Verify service health after service recovery, or `scrape_up = 1` after monitoring recovery.
 
 The evaluator checks the trajectory and simulator state. A model’s final claim alone cannot pass the run. The Docker demo’s state is not evidence of simulator recovery.
 
@@ -87,9 +90,12 @@ Local Qwen / scripted control
             │
     Infrastructure allowlist
        ├── inspect service
+       ├── inspect monitoring
        ├── read metrics
        ├── read logs
-       └── restart simulated Nginx
+       ├── restart simulated Nginx
+       ├── roll back simulated config
+       └── restore simulated scrape target
             │
     Deterministic evaluator
        ├── JSONL trajectory
@@ -120,9 +126,9 @@ See [reference review and provenance](docs/infra-provenance.md) for source links
 
 ## Current verification
 
-- Local Qwen3-4B passed both incidents: Nginx unavailable and memory pressure, each with evidence gathered, one restart, and post-recovery health verification.
-- Python unit suite: 252 tests passed, including both scripted incident paths and target/tool allowlist checks.
-- Frontend suite: 22 tests passed; TypeScript typecheck and production build passed.
+- Local Qwen3-4B passed all five incidents: unavailable, memory pressure, elevated latency, configuration drift, and scrape loss. Each run gathered evidence, used its scenario-matched action, and verified recovery through the correct health check.
+- Python unit suite: 254 tests passed, including all five scripted incident paths, scenario-specific action checks, and target/tool allowlist checks.
+- Frontend suite: 14 tests passed; TypeScript typecheck and production build passed.
 - Docker Compose Nginx and Prometheus stack was brought up and checked separately.
 
-This is a prototype and one successful incident does not establish broad operational reliability. More fault scenarios, repeated model trials, and evaluation of safety failure cases remain future work.
+This is a prototype and successful scripted runs do not establish broad operational reliability. Repeated local-model trials and evaluation of safety failure cases remain future work.

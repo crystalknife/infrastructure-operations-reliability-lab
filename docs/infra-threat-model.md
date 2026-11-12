@@ -9,7 +9,7 @@
 
 ## Allowed operations
 
-`inspect_service`, `get_metrics`, and `get_logs` are read-only. `restart_service` is the only write action, requires exactly `{ "service": "nginx" }`, is hard-coded to the simulator, and is idempotent for an already-running service. Unknown tools and service names fail closed. There is no free-form command, shell, path, URL, or target argument.
+`inspect_service`, `inspect_monitoring`, `get_metrics`, and `get_logs` are read-only. The only writes are `restart_service`, `rollback_config`, and `restore_scrape_target`; each requires exactly `{ "service": "nginx" }`, is hard-coded to in-memory simulator state, and is accepted only for its matching scenario. Unknown tools, service names, and cross-scenario actions fail closed. There is no free-form command, shell, path, URL, or target argument.
 
 ## Prompt injection and unsafe proposals
 

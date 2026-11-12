@@ -1,18 +1,19 @@
 {
-  "scenario": "nginx-memory-pressure",
+  "scenario": "prometheus-scrape-loss",
   "passed": true,
   "recovered": true,
   "recovery_verified": true,
   "evidence_collected": true,
   "failure": null,
   "model": "local:qwen3-4b",
-  "steps": 5,
+  "steps": 6,
   "actions": [
     "inspect_service",
+    "inspect_monitoring",
     "get_metrics",
     "get_logs",
-    "restart_service",
-    "inspect_service"
+    "restore_scrape_target",
+    "inspect_monitoring"
   ],
   "termination_reason": "agent_final",
   "trajectory": "results/infra-trajectories.jsonl"

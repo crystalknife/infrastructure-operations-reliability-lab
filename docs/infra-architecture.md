@@ -21,7 +21,7 @@ Docker Compose (separate, optional observation stack): Nginx → exporter → Pr
 
 ## Scenario and tools
 
-The scenarios `nginx-unavailable` and `nginx-memory-pressure` start from distinct fixed states: stopped service or degraded service at 93% memory. Read-only tools inspect service status, fixed metrics, and incident log lines. The sole write tool is `restart_service(service="nginx")`; it changes only in-memory simulator state. Success requires logs and metrics before the action, exactly one allowlisted recovery, and a subsequent healthy inspection. The evaluator is deterministic and does not use an LLM judge.
+Five fixed scenarios cover service availability, 93% memory pressure, elevated latency, configuration drift, and a lost Prometheus scrape target. Read-only tools inspect service/monitoring health, fixed metrics, and incident logs. Three write tools are narrowly scenario-gated: `restart_service` for availability/resource/latency incidents, `rollback_config` for configuration drift, and `restore_scrape_target` for scrape loss. They change in-memory simulator state only. Success requires both logs and metrics before exactly one matching action, followed by service-health or scrape-health verification as appropriate. The evaluator is deterministic and does not use an LLM judge.
 
 Compose runs a separate local Nginx endpoint and Prometheus exporter stack. It is for human observation and setup practice. The agent does not connect to these containers and does not repair live containers.
 

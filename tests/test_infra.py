@@ -7,19 +7,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from minilab.infra import InfrastructureEnv, dispatch, run_incident, scripted_model
+from minilab.infra import SCENARIOS, InfrastructureEnv, dispatch, run_incident, scripted_model
 
 
 class InfrastructureTests(unittest.TestCase):
     def test_scripted_incident_recovers_and_verifies(self):
-        for scenario in ("nginx-unavailable", "nginx-memory-pressure"):
+        for scenario, spec in SCENARIOS.items():
             with self.subTest(scenario=scenario):
-                trajectory, result = run_incident(scripted_model(), scenario=scenario)
+                trajectory, result = run_incident(scripted_model(scenario=scenario), scenario=scenario)
                 self.assertTrue(result["passed"])
                 self.assertTrue(result["evidence_collected"])
                 self.assertEqual(trajectory.termination_reason, "agent_final")
-                self.assertEqual(trajectory.steps[-1].observation["status"], "healthy")
-                self.assertEqual([s.action for s in trajectory.steps].count("restart_service"), 1)
+                if scenario == "prometheus-scrape-loss":
+                    self.assertEqual(trajectory.steps[-1].observation["scrape_up"], 1)
+                else:
+                    self.assertEqual(trajectory.steps[-1].observation["status"], "healthy")
+                self.assertEqual([s.action for s in trajectory.steps].count(spec["expected_action"]), 1)
+                self.assertEqual(trajectory.steps[-1].action,
+                                 "inspect_monitoring" if scenario == "prometheus-scrape-loss" else "inspect_service")
 
     def test_memory_pressure_starts_degraded_with_high_memory(self):
         env = InfrastructureEnv("nginx-memory-pressure")
@@ -36,6 +41,18 @@ class InfrastructureTests(unittest.TestCase):
     def test_unknown_tool_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "unknown infrastructure tool"):
             dispatch(InfrastructureEnv(), "run_shell", {})
+
+    def test_each_incident_requires_its_specific_allowlisted_action(self):
+        env = InfrastructureEnv("nginx-config-drift")
+        with self.assertRaisesRegex(ValueError, "not allowed for scenario"):
+            dispatch(env, "restart_service", {"service": "nginx"})
+        self.assertEqual(env.config_revision, "unsafe-v2")
+        self.assertTrue(env.problem_active)
+
+    def test_scrape_loss_does_not_claim_nginx_is_down(self):
+        env = InfrastructureEnv("prometheus-scrape-loss")
+        self.assertEqual(env.inspect_service("nginx")["status"], "healthy")
+        self.assertEqual(env.inspect_monitoring("nginx")["scrape_up"], 0)
 
     def test_restart_acknowledgement_is_not_health_evidence(self):
         env = InfrastructureEnv()

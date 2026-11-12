@@ -86,6 +86,9 @@ describe("infrastructure route", () => {
     expect(document.body.textContent).toContain("restart_service");
     expect(document.body.textContent).toContain("Recovery verified: yes");
     expect(document.body.textContent).toContain("nginx-memory-pressure");
+    expect(document.body.textContent).toContain("nginx-elevated-latency");
+    expect(document.body.textContent).toContain("nginx-config-drift");
+    expect(document.body.textContent).toContain("prometheus-scrape-loss");
     expect(document.body.textContent).toContain("Observe. Diagnose.");
     expect(document.body.textContent?.toLowerCase()).toContain("no docker socket");
     expect(document.querySelector(".card-ink")?.textContent).toContain("PowerShell · local Qwen");

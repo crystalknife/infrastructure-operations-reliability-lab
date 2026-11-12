@@ -2,7 +2,7 @@
 
 ## Current deterministic control
 
-Two scenarios: `nginx-unavailable` (stopped service) and `nginx-memory-pressure` (degraded service at 93% memory). The scripted control emits inspect → metrics → logs → restart → inspect → final for both. A pass requires logs and metrics before the action, a single recovery of the allowlisted service, and a healthy observation after recovery. `tests/test_infra.py` checks both gold paths and rejects unknown targets/tools without changing state.
+Five scenarios: `nginx-unavailable`, `nginx-memory-pressure`, `nginx-elevated-latency`, `nginx-config-drift`, and `prometheus-scrape-loss`. The first three use a scenario-gated simulated Nginx restart; configuration drift requires rollback to a fixed known-good revision; scrape loss requires restoring the simulated scrape target. The scripted control collects inspect → metrics → logs before the one matching action, then separately verifies service health or scrape health. `tests/test_infra.py` checks each gold path, cross-scenario action rejection, and that scrape loss does not falsely report the service itself as down.
 
 ## Qwen evaluation
 
@@ -10,7 +10,7 @@ Use the existing local Qwen adapter with the same scenario and step budget. Save
 
 ## Expansion gates
 
-Before adding scenarios, define fixed initial state, allowed observations, a golden action/evidence set, expected safe behavior, and negative tests. Candidate scenarios include Nginx configuration drift, elevated latency, and monitoring scrape loss. Add adversarial log text and prompt injection tests before any tool expands target scope. Do not introduce host shell, generic HTTP, or unrestricted container control.
+Future expansion should define fixed initial state, allowed observations, a golden action/evidence set, expected safe behavior, and negative tests. Add adversarial log text and prompt injection tests before any tool expands target scope. Do not introduce host shell, generic HTTP, or unrestricted container control.
 
 ## Dashboard
 

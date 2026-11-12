@@ -32,4 +32,4 @@ Compose runs a separate local Nginx endpoint and Prometheus exporter stack. It i
 - `src/minilab/tools.py`: original MiniBank schemas and dispatcher.
 - `src/minilab/trajectory.py`: canonical schema and JSONL append writer.
 - `src/minilab/evaluation.py`, `failures.py`, `runner.py`: deterministic answer checks and experiment accounting.
-- `frontend/`: Observatory built on the Agent Reliability Lab visual system. Infrastructure operations is the home route (`/`, also `/infrastructure`); historical MiniBank experiment analysis remains available under Agent evaluations. The latest summary is written by the Python CLI and loaded by the page refresh control. It remains separate from MiniBank experiment statistics.
+- `frontend/`: Observatory built on the Agent Reliability Lab visual system. `/` is the infrastructure operations home, `/infrastructure` is the incident lab, and `/agent-reliability` is a handoff to the original project's home. Legacy `/experiments/*` URLs also open that handoff page. The latest summary is written by the Python CLI and loaded by the page refresh control.

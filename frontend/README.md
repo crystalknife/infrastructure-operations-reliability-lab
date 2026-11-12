@@ -16,9 +16,10 @@ npm run build       # tsc + vite build -> dist/
 
 ## Routes
 
-`/` dashboard · `/experiments` list · `/experiments/:id` detail ·
-`/experiments/:id/tasks/:taskId` · `/experiments/:id/trials` ·
-`/experiments/:id/trials/:runId` trajectory inspector.
+`/` operations home · `/infrastructure` incident lab · `/agent-reliability`
+handoff page to the original Agent Reliability Lab. Legacy `/experiments/*`
+links also open that handoff page; the original experiment catalogue lives at
+https://agent-reliability-minilab.vercel.app/.
 
 ## Vendored motion primitives
 

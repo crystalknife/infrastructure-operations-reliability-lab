@@ -252,7 +252,7 @@ export function InfrastructurePage() {
         </div>
         <div>
           <SectionTitle index="05" title="Run an evaluation" hint="from the project root" />
-          <div className="card bg-[var(--color-ink)] p-5 text-[var(--color-card)]">
+          <div className="card card-ink p-5">
             <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-paper-deep)]">PowerShell · local Qwen</p>
             <pre className="mt-3 overflow-x-auto font-mono text-xs leading-relaxed"><code>$env:PYTHONPATH = ".\src"{"\n"}.\.venv\Scripts\python.exe -m minilab.infra --model local:qwen3-4b</code></pre>
             <p className="mt-4 text-xs leading-relaxed text-[var(--color-paper-deep)]">The run appends its trajectory and updates the latest-result file. Select “Refresh result” above to load it without a full page reload.</p>
@@ -263,6 +263,28 @@ export function InfrastructurePage() {
       <section className="mt-10 border-t border-[var(--color-ink-faint)] pt-5">
         <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink-faint)]">Research lineage</p>
         <p className="mt-2 max-w-4xl text-xs leading-relaxed text-[var(--color-ink-soft)]">This is a separate infrastructure-focused duplicate built on the Agent Reliability Lab’s ReAct runner, trajectory format, deterministic evaluation approach, and visual system. Benchmark design was informed by Cloud-OpsBench; diagnostic and runbook-first patterns by K8sGPT and HolmesGPT. No upstream source files were copied.</p>
+      </section>
+    </LabShell>
+  );
+}
+
+/** Handoff page for the original Agent Reliability Lab home and experiment catalogue. */
+export function AgentReliabilityPage() {
+  return (
+    <LabShell>
+      <section className="grid gap-8 py-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-signal)]">Project handoff · original lab</p>
+          <h2 className="font-display mt-4 max-w-3xl text-5xl font-bold leading-[0.98] tracking-tight sm:text-7xl">Agent Reliability Lab.</h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink-soft)] sm:text-lg">The Agent Reliability Lab is the foundation for this infrastructure extension. Its research home and experiment catalogue live in the original project.</p>
+          <a className="mt-7 inline-flex rounded-md bg-[var(--color-ink)] px-5 py-3 font-mono text-xs uppercase tracking-wider text-[var(--color-card)] hover:bg-[var(--color-signal)]" href="https://agent-reliability-minilab.vercel.app/" target="_blank" rel="noreferrer">Visit Agent Reliability Lab ↗</a>
+        </div>
+        <article className="card p-6 sm:p-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]">Relationship between projects</p>
+          <h3 className="font-display mt-3 text-2xl font-bold">One foundation. A focused extension.</h3>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-soft)]">This repository builds on the original lab’s local model provider, ReAct loop, tool dispatcher, trajectory format, and deterministic evaluation patterns. The infrastructure incidents, simulator, safety boundaries, and operations interface are developed in this separate project.</p>
+          <a className="mt-5 inline-block font-mono text-xs underline decoration-[var(--color-signal)] underline-offset-4" href="https://agent-reliability-minilab.vercel.app/" target="_blank" rel="noreferrer">Open the original project home →</a>
+        </article>
       </section>
     </LabShell>
   );

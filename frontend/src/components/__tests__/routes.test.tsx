@@ -10,9 +10,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { dataUrl } from "../../lib/load";
-import {
-  DashboardPage, ExperimentPage, ExperimentsPage, TaskPage, TrialsPage, TrialPage, InfrastructurePage, OperationsPage,
-} from "../../pages/pages";
+import { AgentReliabilityPage, InfrastructurePage, OperationsPage } from "../../pages/pages";
 
 const DATA = join(process.cwd(), "public", "data");
 
@@ -48,96 +46,22 @@ function at(path: string, el: React.ReactNode) {
 const routes = (
   <>
     <Route path="/" element={<OperationsPage />} />
-    <Route path="/agent-reliability" element={<DashboardPage />} />
-    <Route path="/experiments" element={<ExperimentsPage />} />
-    <Route path="/experiments/:id" element={<ExperimentPage />} />
-    <Route path="/experiments/:id/tasks/:taskId" element={<TaskPage />} />
-    <Route path="/experiments/:id/trials" element={<TrialsPage />} />
-    <Route path="/experiments/:id/trials/:runId" element={<TrialPage />} />
+    <Route path="/agent-reliability" element={<AgentReliabilityPage />} />
+    <Route path="/experiments/*" element={<AgentReliabilityPage />} />
     <Route path="/infrastructure" element={<InfrastructurePage />} />
   </>
 );
 
-describe("routes render real EXP-001 data", () => {
-  it("Agent Reliability dashboard remains available at its named route", async () => {
-    at("/agent-reliability", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(document.body.textContent).toContain("Local Qwen3-4B Baseline"));
-    expect(document.body.textContent).toContain("25%");
-    expect(document.body.textContent).toContain("valid trials");
-    expect(document.body.textContent).toContain("evidence gap");
-  });
-
-  it("experiments list shows the artifact", async () => {
-    at("/experiments", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(document.body.textContent).toContain("exp-001"));
-    expect(document.body.textContent).toContain("16 trials");
-  });
-
-  it("task page lists its trials", async () => {
-    at("/experiments/exp-001/tasks/waiver-c101", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(document.body.textContent).toContain("waiver-c101"));
-    expect(document.body.textContent).toContain("2 trials");
-  });
-
-  it("trials page filters exist", async () => {
+describe("Agent Reliability Lab handoff", () => {
+  it("replaces embedded experiment pages with the original project link", () => {
     at("/experiments/exp-001/trials", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(screen.getByRole("tablist", { name: "Filter trials" })).toBeTruthy());
-  });
-
-  it("trials page honors a deep-linked failure filter", async () => {
-    at("/experiments/exp-001/trials?failure=evidence_gap", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(document.body.textContent).toContain("filtered:"));
-    expect(document.body.textContent).toContain("failure: evidence gap");
-    expect(document.body.textContent).toContain("waiver-c101");
-    expect(document.body.textContent).not.toContain("waiver-c102");
-  });
-
-  it("trial page renders steps, final answer, and verdict", async () => {
-    const manifest = JSON.parse(readFileSync(join(DATA, "exp-001.json"), "utf-8"));
-    const runId = manifest[0].run_id as string;
-    at(`/experiments/exp-001/trials/${runId}`, <Routes>{routes}</Routes>);
-    await waitFor(() => expect(screen.getByText("final answer", { exact: false })).toBeTruthy());
-    expect(document.body.textContent).toContain("evaluator verdict");
-    expect(document.body.textContent).toContain("provenance");
-  });
-});
-
-describe("exp-002 pilot report", () => {
-  it("experiments list distinguishes baseline from pilot arms", async () => {
-    at("/experiments", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(document.body.textContent).toContain("exp-002"));
-    expect(document.body.textContent).toContain("baseline");
-    expect(document.body.textContent).toContain("pilot");
-  });
-
-  it("exp-002 report renders the data-driven five-arm comparison", async () => {
-    at("/experiments/exp-002", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(document.body.textContent).toContain("Five-arm comparison"));
-    const text = document.body.textContent ?? "";
-    // Arm titles come from bundles/summary data, not hardcoded JSX.
-    for (const name of ["Custom baseline", "LangChain unadjusted", "Chatter stripped",
-      "Schema parity", "Schema + chatter"]) {
-      expect(text).toContain(name);
-    }
-    // Derived interpretation labels prove the comparison computed.
-    expect(text).toContain("Controlled — matches baseline");
-    expect(text).toContain("Matches unadjusted arm");
-    // Recovered raw data: normal and combined arms expose per-task sets.
-    expect(text).toContain("calc-total-c101");
-    expect(text).not.toContain("per-task breakdown unavailable");
-  });
-
-  it("control arms keep full trial inspection", async () => {
-    at("/experiments/exp-002a/trials", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(screen.getByRole("tablist", { name: "Filter trials" })).toBeTruthy());
-    expect(document.body.textContent).toContain("waiver-c101");
-    expect(document.body.textContent).toContain("waiver-c103");
-  });
-
-  it("recovered arms expose trial and trajectory routes", async () => {
-    at("/experiments/exp-002c/trials", <Routes>{routes}</Routes>);
-    await waitFor(() => expect(screen.getByRole("tablist", { name: "Filter trials" })).toBeTruthy());
-    expect(document.body.textContent).toContain("horizon-checking-combined");
+    expect(document.body.textContent).toContain("Project handoff");
+    expect(document.body.textContent).toContain("One foundation. A focused extension.");
+    expect(document.body.textContent).not.toContain("waiver-c101");
+    const link = screen.getByRole("link", { name: /Visit Agent Reliability Lab/ });
+    expect(link.getAttribute("href")).toBe("https://agent-reliability-minilab.vercel.app/");
+    expect(screen.getByRole("link", { name: "Open the maintainer GitHub profile" }).getAttribute("href")).toBe("https://github.com/crystalknife");
+    expect(screen.getByRole("link", { name: "Open the Infrastructure Operations Lab source code" }).getAttribute("href")).toBe("https://github.com/crystalknife/infrastructure-operations-reliability-lab");
   });
 });
 
@@ -161,6 +85,7 @@ describe("infrastructure route", () => {
     expect(document.body.textContent).toContain("nginx-memory-pressure");
     expect(document.body.textContent).toContain("Observe. Diagnose.");
     expect(document.body.textContent?.toLowerCase()).toContain("no docker socket");
+    expect(document.querySelector(".card-ink")?.textContent).toContain("PowerShell · local Qwen");
     expect(screen.getByRole("button", { name: "Refresh result" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Refresh result" }));
     await waitFor(() => expect(screen.getByRole("button", { name: "Refresh result" })).toBeTruthy());

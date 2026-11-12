@@ -54,6 +54,11 @@ body {
   box-shadow: 4px 4px 0 0 var(--color-line);
 }
 
+.card-ink {
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+
 .card-flat {
   background: var(--color-card);
   border: 1.5px solid var(--color-line);

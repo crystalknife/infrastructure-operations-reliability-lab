@@ -2,18 +2,8 @@ import * as React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { SmoothRoot } from "./hooks/SmoothRoot";
 
-const DashboardPage = React.lazy(() =>
-  import("./pages/pages").then((m) => ({ default: m.DashboardPage })));
-const ExperimentPage = React.lazy(() =>
-  import("./pages/pages").then((m) => ({ default: m.ExperimentPage })));
-const ExperimentsPage = React.lazy(() =>
-  import("./pages/pages").then((m) => ({ default: m.ExperimentsPage })));
-const TaskPage = React.lazy(() =>
-  import("./pages/pages").then((m) => ({ default: m.TaskPage })));
-const TrialsPage = React.lazy(() =>
-  import("./pages/pages").then((m) => ({ default: m.TrialsPage })));
-const TrialPage = React.lazy(() =>
-  import("./pages/pages").then((m) => ({ default: m.TrialPage })));
+const AgentReliabilityPage = React.lazy(() =>
+  import("./pages/pages").then((m) => ({ default: m.AgentReliabilityPage })));
 const InfrastructurePage = React.lazy(() =>
   import("./pages/pages").then((m) => ({ default: m.InfrastructurePage })));
 const OperationsPage = React.lazy(() =>
@@ -30,13 +20,9 @@ export function App() {
         <React.Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<OperationsPage />} />
-            <Route path="/experiments" element={<ExperimentsPage />} />
-            <Route path="/experiments/:id" element={<ExperimentPage />} />
-            <Route path="/experiments/:id/tasks/:taskId" element={<TaskPage />} />
-            <Route path="/experiments/:id/trials" element={<TrialsPage />} />
-            <Route path="/experiments/:id/trials/:runId" element={<TrialPage />} />
+            <Route path="/experiments/*" element={<AgentReliabilityPage />} />
             <Route path="/infrastructure" element={<InfrastructurePage />} />
-            <Route path="/agent-reliability" element={<DashboardPage />} />
+            <Route path="/agent-reliability" element={<AgentReliabilityPage />} />
             <Route path="*" element={<InfrastructurePage />} />
           </Routes>
         </React.Suspense>

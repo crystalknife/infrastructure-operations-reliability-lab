@@ -1,5 +1,5 @@
 {
-  "scenario": "nginx-unavailable",
+  "scenario": "nginx-memory-pressure",
   "passed": true,
   "recovered": true,
   "recovery_verified": true,

@@ -27,14 +27,15 @@ export function App() {
       <BrowserRouter>
         <React.Suspense fallback={<Loading />}>
           <Routes>
-            <Route path="/" element={<DashboardPage />} />
+            <Route path="/" element={<InfrastructurePage />} />
             <Route path="/experiments" element={<ExperimentsPage />} />
             <Route path="/experiments/:id" element={<ExperimentPage />} />
             <Route path="/experiments/:id/tasks/:taskId" element={<TaskPage />} />
             <Route path="/experiments/:id/trials" element={<TrialsPage />} />
             <Route path="/experiments/:id/trials/:runId" element={<TrialPage />} />
             <Route path="/infrastructure" element={<InfrastructurePage />} />
-            <Route path="*" element={<DashboardPage />} />
+            <Route path="/agent-reliability" element={<DashboardPage />} />
+            <Route path="*" element={<InfrastructurePage />} />
           </Routes>
         </React.Suspense>
       </BrowserRouter>

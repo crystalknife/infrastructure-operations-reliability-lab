@@ -1,422 +1,128 @@
-<div align="center">
+# Infrastructure Operations & Reliability Lab
 
-<a href="https://agent-reliability-minilab.vercel.app/">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/minilab-title-dark.png" />
-  <source media="(prefers-color-scheme: light)" srcset="docs/assets/minilab-title-light.png" />
-  <img alt="Agent Reliability Lab" src="docs/assets/minilab-title-light.png" />
-</picture>
-</a>
+A local lab for testing how AI agents investigate infrastructure incidents, gather evidence, apply a constrained recovery action, and verify service health. It keeps the **Agent Reliability Lab** name and work as its foundation while giving infrastructure operations its own environment, evaluations, and Observatory dashboard.
 
-**An experimental framework for measuring AI-agent reliability through controlled tasks, tool use, trajectories, and deterministic evaluation.**
+> This is a separate duplicate of [Agent Reliability Lab](https://github.com/crystalknife/agent-reliability-lab), built from its ReAct loop, local model adapter, tool dispatcher, trajectory recording, deterministic evaluator, and frontend design system. The original repository remains untouched. Infrastructure-specific simulator behavior, safeguards, Docker monitoring stack, evaluation, and interface are new work in this repository.
 
-[![CI](https://github.com/crystalknife/agent-reliability-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/crystalknife/agent-reliability-lab/actions/workflows/ci.yml)
-[![Live Dashboard](https://img.shields.io/badge/live-observability%20dashboard-000000?logo=vercel)](https://agent-reliability-minilab.vercel.app/)
-[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
-[![License: unspecified](https://img.shields.io/badge/license-not%20yet%20declared-lightgrey)](#license)
+**Status:** prototype. The agent currently operates on deterministic simulator state. Docker Nginx and Prometheus are a separate local observation stack; the agent cannot control those containers.
 
-[Live Dashboard](https://agent-reliability-minilab.vercel.app/) ·
-[Quickstart](#-quickstart) ·
-[Experiments](#experiments) ·
-[Architecture](#architecture) ·
-[Deployment](#deployment) ·
-[Contributing](#contributing)
+## What it does
 
-**[OPEN LIVE OBSERVATORY ↗](https://agent-reliability-minilab.vercel.app/)**
+- Runs two deterministic Nginx incidents through the lab’s existing ReAct loop: unavailable service and high memory pressure, including with local Qwen through llama.cpp.
+- Gives the agent read-only service, metrics, and log tools plus one allowlisted simulator-only restart.
+- Requires collected logs and metrics, exactly one restart, and a post-restart healthy inspection before the deterministic evaluator passes a run.
+- Records every run to `results/infra-trajectories.jsonl` and writes the latest summary to `frontend/public/data/infra-latest.json`.
+- Provides an infrastructure operations home page with the latest result, action sequence, safety boundaries, run instructions, and links to local Nginx and Prometheus.
+- Includes an optional loopback-only Docker Compose stack with Nginx and Prometheus for local observation.
 
-</div>
+There is no unrestricted shell tool, host process control, Kubernetes API access, or Docker socket exposed to the agent.
 
----
+## Quick start (Windows PowerShell)
 
-> **Status:** Agent Reliability Lab is a **MiniLab — an experimental prototype**, not a mature or universal benchmark. It is intentionally controlled and lightweight. The long-term direction is a domain-specific agent reliability benchmark, and possibly a public leaderboard. Current results are experiments under a specific methodology, **not** broad claims about model intelligence or general agent reliability.
-
-## Overview
-
-Most leaderboards report whether an agent produced the right final answer. That signal is useful but shallow — it cannot tell you *how* an agent failed, which tool call went wrong, or whether it ignored evidence it had already retrieved. Agent Reliability Lab is built to make those questions measurable.
-
-It measures agent reliability by running agents through small, controlled tasks, recording full tool-use trajectories step by step, and evaluating the result with a **deterministic, rule-based checker** (no LLM judge). Every trial is classified against a fixed failure taxonomy, and failures are kept separate from provider/infrastructure faults so that an agent is never charged for a broken API.
-
-The core properties of the current MVP:
-
-- **Controlled environments.** Tasks run against a deterministic, sandboxed fixture with a fixed set of tools.
-- **Recorded trajectories.** Every model action, tool call, argument, observation, and termination reason is preserved.
-- **Deterministic evaluation.** Verdict, evidence citation, and numeric/tool grounding are checked by rules, not a model.
-- **Failure classification.** A small, fixed taxonomy describes *agent-level* failures.
-- **Repeated trials.** Experiments run the same suite multiple times to produce measurable, reproducible results.
-- **Preserved artifacts.** Results and trajectories are append-only research artifacts.
-
-## Capabilities
-
-<table>
-<tr><td>
-
-### Controlled Agent Evaluation
-- Deterministic task environments
-- Explicit task specifications
-- Required-tool constraints
-- Grounded-answer checks
-- Per-task step budgets
-
-</td><td>
-
-### Trajectory-Level Observability
-- Model actions per step
-- Tool calls and arguments
-- Observations returned
-- Termination reasons
-- Provenance metadata
-
-</td></tr>
-<tr><td>
-
-### Deterministic Evaluation
-- Expected answers / verdicts
-- Required evidence citations
-- Grounded numeric evidence
-- Required tools
-- Fixed failure taxonomy
-
-</td><td>
-
-### Experiment Analysis
-- Trial validity tracking
-- Provider vs agent failure separation
-- Success / failure rates
-- Failure-category breakdown
-- Per-task and per-difficulty analysis
-
-</td></tr>
-</table>
-
-## Infrastructure Operations extension
-
-This isolated extension adds a deterministic Nginx incident scenario to the existing ReAct loop. Its service, metrics, and log tools read fixed simulator state; its only remediation restarts simulated Nginx. It does not grant the agent host shell, Docker socket, or live container control. A separate optional Docker Compose stack runs Nginx and Prometheus for local observation.
+Run these commands from the repository root:
 
 ```powershell
-python -m minilab.infra --model scripted
-```
-
-Use `python -m minilab.infra --model local:qwen3-4b` when the existing local `llama-server` endpoint is running. The run appends a canonical trajectory to `results/infra-trajectories.jsonl` and updates the Observatory's `/infrastructure` summary. Start the monitoring stack with `docker compose up -d`; details and safeguards are in [the infrastructure runbook](docs/infra-runbook.md).
-
-See the [architecture](docs/infra-architecture.md), [threat model](docs/infra-threat-model.md), [evaluation plan](docs/infra-evaluation-plan.md), and [provenance notes](docs/infra-provenance.md). The scripted end-to-end check is a harness control, not a Qwen capability result.
-
-### Local and API Models
-
-Model selection is a single `--model` string. The harness ships with built-in local controls and adapters for external providers:
-
-- `stub` and `scripted` — fully local, deterministic controls (no network).
-- `local:<model-id>` — an external local `llama-server` (OpenAI-compatible).
-- `omniroute` — a local OmniRoute server.
-- `gemini`, `groq`, `openrouter` — hosted API providers.
-- Any other string is treated as an OpenAI model name.
-
-Adapter SDKs are optional extras and imported lazily — the core harness runs on the standard library alone. See [Model Providers](#model-providers).
-
-## Live Observability Dashboard
-
-The recorded experiment data has a read-only observability frontend, deployed at:
-
-**<https://agent-reliability-minilab.vercel.app/>**
-
-It lets you explore what the experiments produced:
-
-It lets you explore what the experiments produced:
-
-- Experiment overview and provenance
-- Per-task performance
-- Trial inspection
-- Step-by-step trajectory inspection
-- Tool calls and their observations
-- Failure categories
-- Filtering and deep links
-
-> The frontend **does not execute the benchmark**. It is a static observability layer over recorded artifacts. Python remains the authoritative experiment and evaluation layer.
-
-## Current Experiment
-
-The first controlled baseline is **EXP-001** — the full 8-task suite run against a local Qwen3-4B model.
-
-| Field | Value |
-|---|---|
-| Experiment | EXP-001 |
-| Model | local Qwen3-4B (`local:qwen3-4b`) |
-| Task suite | 8 tasks |
-| Trials | 16 (8 tasks × 2 seeds) |
-| Valid trials | 16 |
-| Provider errors | 0 |
-| Passed | 4 |
-| Failed | 12 |
-| Agent reliability | **25%** (valid trials only) |
-
-**Failure breakdown** (valid trials): `evidence_gap` 8, `policy_misread` 4, `none` (pass) 4.
-
-> **This is a baseline experiment under the current MiniLab methodology — not a general claim about Qwen3-4B.** It is the outcome of this specific task suite, evidence contract, and inference configuration, on CPU-only hardware.
-
-Read the full write-up: [`docs/experiments/EXP-001-local-qwen3-baseline.md`](docs/experiments/EXP-001-local-qwen3-baseline.md).
-
-### Experiment history
-
-All arms use the local Qwen3-4B model (`local:qwen3-4b`) at temperature 0. EXP-001 remains the primary Dashboard baseline.
-
-| Experiment | Description | Trials | Valid | Passed | Failed | Pass rate |
-|---|---|---:|---:|---:|---:|---:|
-| EXP-001 | Local Qwen3-4B custom-harness baseline | 16 | 16 | 4 | 12 | 25% |
-| EXP-002 | Normal LangChain pilot | 16 | 16 | 8 | 8 | 50% |
-| EXP-002A | Chatter-stripped control | 16 | 16 | 8 | 8 | 50% |
-| EXP-002B | Schema-parity control | 16 | 16 | 4 | 12 | 25% |
-| EXP-002C | Schema-parity + chatter-stripped control | 16 | 16 | 4 | 12 | 25% |
-
-### What the pilot showed
-
-The unadjusted LangChain arm passed 8/16 (50%) against EXP-001's 4/16 (25%), but the schema-parity control passed 4/16 (25%): model-facing schema differences are a material confound in the unadjusted result. The 50% is an observational pilot result, not a framework-superiority claim. Parallel tool-call behavior remains a protocol difference, and with 16 trials per arm no significance claims are supported.
-
-Read the full write-up: [`docs/experiments/EXP-002-langchain-framework-pilot.md`](docs/experiments/EXP-002-langchain-framework-pilot.md).
-
-## Architecture
-
-```text
-Task Suite
-    ↓
-Agent Harness
-    ↓
-Environment + Tools
-    ↓
-Trajectory Recorder
-    ↓
-Deterministic Evaluator
-    ↓
-Failure Taxonomy
-    ↓
-Results + Metrics
-    ↓
-Observability Frontend
-```
-
-| Stage | Responsibility |
-|---|---|
-| **Task Suite** | Declares prompts, expected verdicts/answers, required tools, grounded numbers, and per-task step budgets. Schema-validated on import. |
-| **Agent Harness** | ReAct loop with an injected `model_fn`. Never raises: model exceptions become `model_error`, tool faults become `tool_error`. |
-| **Environment + Tools** | Deterministic MiniBank state answering customer/account/transaction/policy queries, plus the 5 tool schemas and a sandboxed `calculate`. |
-| **Trajectory Recorder** | Canonical step schema (actions, tool calls, observations, termination reason) plus experiment/model/seed provenance. |
-| **Deterministic Evaluator** | Rule-based verdict match, evidence citation, and tool/number grounding. No LLM judge. |
-| **Failure Taxonomy** | Splits trial status (valid / provider_error / …) from the agent-level failure category. |
-| **Results + Metrics** | Append-only JSONL results and pure aggregation over valid trials. |
-| **Observability Frontend** | Static read-only UI over the recorded artifacts. |
-
-See [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) for module boundaries and invariants.
-
-## Project Structure
-
-```text
-agent-reliability-lab/
-├── src/minilab/        # experiment engine (tasks, agent loop, env, evaluator, metrics)
-│   └── models/         # provider + local adapters
-├── tests/              # Python test suite
-├── data/               # deterministic MiniBank fixture
-├── results/            # append-only experiment artifacts (JSONL)
-├── docs/               # architecture + experiment write-ups
-├── frontend/           # React + TypeScript observability UI (Vercel)
-├── scripts/            # data export helpers
-├── .github/workflows/  # CI
-└── pyproject.toml
-```
-
-Key modules:
-
-- `src/minilab/tasks.py` — task definitions + ground truth + validation.
-- `src/minilab/agent.py` — the ReAct agent loop.
-- `src/minilab/env.py` — MiniBank state (loads `data/bank.json`, never mutated).
-- `src/minilab/tools.py` — the 5 tool schemas + dispatch.
-- `src/minilab/evaluation.py` — deterministic rule-based checker.
-- `src/minilab/failures.py` — trial status + failure taxonomy.
-- `src/minilab/runner.py` — experiment driver (repeats, seeds, model selection, JSONL).
-- `src/minilab/metrics.py` — aggregation over results JSONL.
-
-## MiniBank Environment
-
-The controlled environment is **MiniBank** — a fictional banking domain built for repeatable agent evaluation. It exposes five tools:
-
-| Tool | Purpose |
-|---|---|
-| `get_customer` | Look up a customer record |
-| `get_account` | Look up an account |
-| `get_transactions` | Retrieve transactions |
-| `search_policy` | Retrieve policy text |
-| `calculate` | Sandboxed arithmetic |
-
-The environment is deterministic and intentionally limited so results are comparable across runs.
-
-> MiniBank is a benchmark environment for experimentation — **not** a production banking system.
-
-## Failure Taxonomy
-
-Agent-level failures are classified into exactly these categories:
-
-- `tool_misuse`
-- `evidence_gap`
-- `policy_misread`
-- `arithmetic_error`
-- `premature_stop`
-- `format_violation`
-
-Trial status is tracked on a separate axis (`valid`, `provider_error`, `environment_error`, `evaluator_error`), so an infrastructure fault is never recorded as an agent failure. The taxonomy is intentionally kept small during the current experimental phase.
-
-## Experiments
-
-An experiment is a repeated, recorded run of a task suite:
-
-- **Repeated runs** with explicit **seeds**.
-- **Model/provider metadata** and inference config recorded per run.
-- **Full trajectory recording** for every trial.
-- **Append-only JSONL artifacts** that are never rewritten.
-- **Experiment documentation** alongside the raw artifacts.
-- **Separation of valid trials from provider/infrastructure failures.**
-
-Reproducibility metadata (model, provider, seed, temperature, run identifiers) is preserved with every trial, so a result can be traced back to the exact configuration that produced it.
-
-## 🚀 Quickstart
-
-Requires **Python 3.10+**. The core harness uses only the standard library.
-
-```powershell
-# 1. Clone and install
-git clone https://github.com/crystalknife/agent-reliability-lab.git
-cd agent-reliability-lab
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -e .
+.\.venv\Scripts\python.exe -m pip install -e ".[openai]"
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-Run the test suite:
+The `openai` extra is used as a client for the local OpenAI-compatible llama.cpp endpoint. It does not send requests to OpenAI. To run the deterministic control without the model adapter, install the base package with `.\.venv\Scripts\python.exe -m pip install -e .` instead.
+
+Start or keep running the local llama.cpp server with the Qwen model at `http://127.0.0.1:8081/v1`, then run:
 
 ```powershell
-python -m unittest discover -s tests -v
+$env:PYTHONPATH = ".\src"
+.\.venv\Scripts\python.exe -m minilab.infra --model local:qwen3-4b
 ```
 
-Run the deterministic oracle control (validates the harness — expected **8/8 passed**):
+To run the scripted harness control (no model server required):
 
 ```powershell
-python -m minilab.runner --tasks all --repeats 1 --seed 0 --model scripted
-python -m minilab.metrics --results results/results.jsonl
+$env:PYTHONPATH = ".\src"
+.\.venv\Scripts\python.exe -m minilab.infra --model scripted
 ```
 
-Run a first experiment against the built-in stub and aggregate it:
+## Start the Observatory
+
+In a second PowerShell window, from the repository root:
 
 ```powershell
-python -m minilab.runner --tasks all --repeats 2 --seed 0 --model stub `
-  --results results/my_experiment.jsonl `
-  --trajectories results/my_experiment_traj.jsonl
-python -m minilab.metrics --results results/my_experiment.jsonl
-```
-
-Run the observability frontend locally (optional — static over recorded data):
-
-```powershell
-cd frontend
+Set-Location .\frontend
 npm ci
-npm run data   # regenerate static experiment data from results/
 npm run dev
 ```
 
-## Model Providers
+Open `http://localhost:5173/`. After an incident run, choose **Refresh result** on the operations page. The Python run updates the dashboard JSON; the frontend reads that artifact and does not need manual code edits or a rebuild during Vite development.
 
-Model selection is driven entirely by the `--model` string. There are three execution shapes:
+## Optional Nginx and Prometheus stack
 
-- **Built-in local controls** (`stub`, `scripted`): deterministic, no network. `scripted` replays the oracle tool sequence and is used as the control that validates the harness plumbing.
-- **External local servers** (`local`, `omniroute`): OpenAI-compatible servers you run yourself (e.g. a local `llama-server` on port 8081). The harness **never starts them**.
-- **Hosted API providers** (`gemini`, `groq`, `openrouter`, OpenAI): require an API key in the environment and the matching optional SDK (e.g. `pip install -e ".[openai,gemini]"`).
+This Compose environment is for observing the local demo service. It is independent of the agent simulator.
 
-API-backed and local execution differ only in where inference happens; everything downstream (trajectory recording, evaluation, metrics) is identical. **Provider and infrastructure errors are classified separately from agent failures** — a rate-limit or a dead server is never counted against the agent.
+```powershell
+docker compose config
+docker compose up -d
+Invoke-WebRequest http://127.0.0.1:8088/health
+Invoke-WebRequest http://127.0.0.1:9090/-/ready
+```
 
-> No credentials are stored in the repository. Provider API keys are read from the environment (and local, git-ignored key files), never committed. Free API access is not implied — you supply your own keys and quota.
+Open Nginx health at `http://127.0.0.1:8088/health` and Prometheus targets at `http://127.0.0.1:9090/targets`. Stop the optional stack with `docker compose down`.
 
-## Reproducibility
+## How a run is scored
 
-The lab separates what is deterministic from what is not:
+The current scenarios start with simulated Nginx unavailable or degraded by high memory use. A passing trajectory must:
 
-- **Deterministic by design:** the MiniBank environment, the tools, and the rule-based evaluator.
-- **Explicitly recorded:** seeds, model/provider identifiers, temperature, prompt provenance where available, run identifiers, and full trajectories.
-- **Append-only:** experiment artifacts are written once and never rewritten.
+1. Inspect Nginx and collect metrics and logs before taking action.
+2. Call the single approved restart exactly once.
+3. Inspect the service again and observe `healthy` after that restart.
 
-> The environment and evaluator are deterministic by design; **model inference may still vary** depending on the provider/runtime. `temperature=0` does not guarantee identical output across builds or providers, so full configuration is recorded for auditability rather than assumed.
+The evaluator checks the trajectory and simulator state. A model’s final claim alone cannot pass the run. The Docker demo’s state is not evidence of simulator recovery.
 
-## Development
+## Architecture and safety
 
-- CI runs on every pull request targeting `main` and on pushes to `main`.
-- Two required checks: **Python tests (204)** and **Frontend tests, typecheck, build**.
-- `main` is protected: changes land through pull requests with these checks passing.
-- The frontend job (`frontend/`) runs `npm ci`, `npm test`, `npm run typecheck`, and `npm run build`.
+```text
+Local Qwen / scripted control
+            │
+       Existing ReAct loop  ← Agent Reliability Lab base
+            │
+    Infrastructure allowlist
+       ├── inspect service
+       ├── read metrics
+       ├── read logs
+       └── restart simulated Nginx
+            │
+    Deterministic evaluator
+       ├── JSONL trajectory
+       └── Observatory summary
+```
 
-See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+The tools are bound to an in-memory incident simulator. The separate Docker stack uses loopback-bound ports and is not connected to the agent dispatcher. See the [architecture](docs/infra-architecture.md), [threat model](docs/infra-threat-model.md), [runbook](docs/infra-runbook.md), and [evaluation plan](docs/infra-evaluation-plan.md).
 
-## Deployment
+## Open-source research and adaptations
 
-- The frontend is deployed on **Vercel** with GitHub-connected automatic deployments: updates to `main` redeploy the live site.
-- Vercel root directory is `frontend/`; **Vite** builds the static output to `dist/`.
-- An **SPA fallback** rewrite serves `index.html` for client-side routes so deep links (e.g. `/experiments/EXP-001`) resolve correctly.
-- The Python experiment engine is **separate** — it runs locally / from the repository and is never hosted.
+These public projects informed design decisions. No source code or benchmark artifacts have been copied into this repository.
 
-Live: **<https://agent-reliability-minilab.vercel.app/>**
+- [Cloud-OpsBench](https://github.com/LLM4Ops/Cloud-OpsBench) — reproducible incident scenarios and evidence-grounded root-cause evaluation informed the scenario/evidence/verdict separation. Its repository declares MIT; code reuse would require retaining its notices.
+- [HolmesGPT](https://github.com/holmesgpt/holmesgpt) — SRE investigation and runbook-first workflow patterns informed the emphasis on diagnostics before remediation. The project README identifies Apache 2.0; no code was copied.
+- [K8sGPT](https://github.com/k8sgpt-ai/k8sgpt) — analyzer-oriented diagnostic results informed the separation of inspection/evidence from the constrained repair action. Its repository declares Apache 2.0; no code was copied.
+- [Strands Agents samples](https://github.com/strands-agents/samples) — sample organization and evaluation-oriented workflow references informed the documentation layout. Its repository declares Apache 2.0; no sample code was copied.
 
-## Roadmap
+See [reference review and provenance](docs/infra-provenance.md) for source links, license checks, and the specific adaptations. The inherited Agent Reliability Lab code has its own provenance and license status; this repository does not claim ownership of that upstream work.
 
-**Done**
+## Repository map
 
-- [x] Controlled MiniBank environment
-- [x] Trajectory recording
-- [x] Deterministic evaluator
-- [x] Failure taxonomy
-- [x] Repeated experiments
-- [x] Local Qwen3 baseline (EXP-001)
-- [x] LangChain framework pilot (EXP-002)
-- [x] Framework confounder controls (chatter stripping, schema parity)
-- [x] Observability frontend
-- [x] CI validation
+- `src/minilab/infra.py` — scenario, allowlisted tools, ReAct integration, deterministic evaluator, and artifact output.
+- `infra/` — optional Nginx and Prometheus configuration.
+- `frontend/src/pages/pages.tsx` — infrastructure operations and incident view.
+- `frontend/public/data/infra-latest.json` — latest evaluated summary read by the frontend.
+- `results/infra-trajectories.jsonl` — append-only run trajectories.
+- `docs/infra-*.md` — design, safety, setup, evaluation, provenance, and progress records.
 
-**Next**
+## Current verification
 
-- [ ] EXP-003 — controlled framework replication (PLANNED / NEXT): custom MiniLab harness versus LangChain with schema parity, same `local:qwen3-4b` model, same eight-task suite, temperature 0, five repeats per arm (40 trials per arm), same evaluator, environment and task budgets. Not yet run.
-- [ ] Larger task suites
-- [ ] Controlled fault injection
-- [ ] Recovery / reliability experiments
-- [ ] Stronger statistical reporting
-- [ ] Token / cost / latency measurements
-- [ ] Broader model and provider comparisons
-- [ ] Domain-specific benchmark expansion
-- [ ] Public leaderboard
+- Local Qwen3-4B passed both incidents: Nginx unavailable and memory pressure, each with evidence gathered, one restart, and post-recovery health verification.
+- Python unit suite: 252 tests passed, including both scripted incident paths and target/tool allowlist checks.
+- Frontend suite: 22 tests passed; TypeScript typecheck and production build passed.
+- Docker Compose Nginx and Prometheus stack was brought up and checked separately.
 
-## Contributing
-
-1. Fork or clone the repository.
-2. Create a feature branch off `main`.
-3. Make focused changes — keep the benchmark methodology and task definitions separate from unrelated work.
-4. Run the tests locally:
-   ```powershell
-   python -m unittest discover -s tests -v
-   ```
-5. Open a pull request against `main`.
-
-Because `main` is protected, all changes land through pull requests with the required CI checks passing. No `CONTRIBUTING.md` exists yet; this section is the current guide.
-
-## Maintainer
-
-Maintained by **Balasubrahmanya A G** ([@crystalknife](https://github.com/crystalknife)).
-
-## License
-
-No license has been explicitly declared yet. The repository is public, but licensing terms have not been established — treat reuse rights as undefined until a license is added.
-
-> Note: the frontend vendors/adapts a small component from Animate UI, whose license is MIT + Commons Clause. This is relevant to (and should be reconciled with) any future license decision.
-
-## Acknowledgements
-
-The frontend's motion and presentation layer draws on these projects:
-
-- **Animate UI** — vendored/adapted collapsible component (MIT + Commons Clause).
-- **Lenis** — smooth-scroll feel layer (respects reduced-motion; not mounted on coarse-pointer devices).
-
----
-
-<div align="center">
-<sub>Agent Reliability Lab is an experimental research prototype. Its results describe specific configurations, not general model capability.</sub>
-</div>
+This is a prototype and one successful incident does not establish broad operational reliability. More fault scenarios, repeated model trials, and evaluation of safety failure cases remain future work.

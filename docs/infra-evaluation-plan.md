@@ -2,7 +2,7 @@
 
 ## Current deterministic control
 
-One scenario: `nginx-unavailable`. The scripted control emits inspect → metrics → logs → restart → inspect → final. A pass requires collected logs and metrics, a single recovery of the allowlisted service, and a healthy observation after that recovery. `tests/test_infra.py` also checks that unknown target names and unknown tools are rejected without changing state.
+Two scenarios: `nginx-unavailable` (stopped service) and `nginx-memory-pressure` (degraded service at 93% memory). The scripted control emits inspect → metrics → logs → restart → inspect → final for both. A pass requires logs and metrics before the action, a single recovery of the allowlisted service, and a healthy observation after recovery. `tests/test_infra.py` checks both gold paths and rejects unknown targets/tools without changing state.
 
 ## Qwen evaluation
 
@@ -14,4 +14,6 @@ Before adding scenarios, define fixed initial state, allowed observations, a gol
 
 ## Dashboard
 
-The `/infrastructure` route reads the latest run summary from `frontend/public/data/infra-latest.json`. Detailed per-step arguments and observations remain in the canonical trajectory JSONL. This separate view avoids mixing this task family into current MiniBank experiment aggregates.
+The `/` and `/infrastructure` routes read the latest run summary from `frontend/public/data/infra-latest.json`. The Python CLI updates this summary after every run; the page's **Refresh result** control fetches it without a full reload. Detailed per-step arguments and observations remain in the canonical trajectory JSONL. This separate view avoids mixing this task family into current MiniBank experiment aggregates.
+
+The evidence-first workflow and deterministic incident/verdict split were informed by Cloud-OpsBench. HolmesGPT and K8sGPT informed the diagnostic-first and constrained-remediation design. These are design references, not runtime dependencies; no source or benchmark data has been copied. See [provenance](infra-provenance.md).

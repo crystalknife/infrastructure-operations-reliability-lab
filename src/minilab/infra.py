@@ -21,7 +21,20 @@ SCENARIOS = {
                   "you must call inspect_service again and confirm it reports healthy before "
                   "you say the incident is resolved.",
         "service": "nginx",
-    }
+        "initial_state": "stopped",
+        "initial_memory": 22,
+        "log_lines": ["health check failed: worker process unavailable"],
+    },
+    "nginx-memory-pressure": {
+        "prompt": "Nginx is responding but under severe memory pressure. Investigate service "
+                  "status, metrics, and logs before deciding whether to use the approved "
+                  "simulator restart. After restarting, inspect the service again and confirm "
+                  "it reports healthy before you say the incident is resolved.",
+        "service": "nginx",
+        "initial_state": "running",
+        "initial_memory": 93,
+        "log_lines": ["worker memory pressure: resident usage above 90 percent"],
+    },
 }
 
 TOOL_SCHEMAS = [
@@ -46,33 +59,41 @@ SYSTEM_PROMPT = (
 
 
 class InfrastructureEnv:
-    """Small deterministic environment with a single guarded remediation."""
+    """Deterministic incident environment with one guarded simulator remediation."""
 
     def __init__(self, scenario="nginx-unavailable"):
         if scenario not in SCENARIOS:
             raise ValueError(f"unknown scenario: {scenario}")
+        spec = SCENARIOS[scenario]
         self.scenario = scenario
-        self.service_state = "stopped"
+        self.service_state = spec["initial_state"]
+        self.memory_percent = spec["initial_memory"]
+        self.problem_active = True
         self.actions = []
 
     def inspect_service(self, service):
         self._require_nginx(service)
-        return {"service": "nginx", "status": "healthy" if self.service_state == "running" else "unavailable"}
+        status = "healthy" if not self.problem_active else (
+            "unavailable" if self.service_state == "stopped" else "degraded"
+        )
+        return {"service": "nginx", "status": status}
 
     def get_metrics(self, service):
         self._require_nginx(service)
         return {"service": "nginx", "availability": 1 if self.service_state == "running" else 0,
-                "cpu_percent": 3, "memory_percent": 22}
+                "cpu_percent": 3, "memory_percent": self.memory_percent}
 
     def get_logs(self, service):
         self._require_nginx(service)
-        return {"service": "nginx", "lines": ["health check failed: worker process unavailable"]}
+        return {"service": "nginx", "lines": SCENARIOS[self.scenario]["log_lines"]}
 
     def restart_service(self, service):
         self._require_nginx(service)
-        if self.service_state == "running":
+        if not self.problem_active:
             return {"changed": False, "service": "nginx", "reason": "already healthy"}
         self.service_state = "running"
+        self.memory_percent = 22
+        self.problem_active = False
         self.actions.append("restart_service")
         return {"changed": True, "service": "nginx", "scope": "simulator",
                 "verification": "unknown; call inspect_service"}
@@ -107,7 +128,9 @@ def evaluate(trajectory, env):
         for step in trajectory.steps[restart_index + 1:]
     )
     recovered = env.service_state == "running"
-    has_evidence = "get_logs" in actions and "get_metrics" in actions
+    has_evidence = restart_index is not None and all(
+        action in actions[:restart_index] for action in ("get_logs", "get_metrics")
+    )
     passed = recovered and verified and has_evidence and actions.count("restart_service") == 1
     return {"scenario": env.scenario, "passed": passed, "recovered": recovered,
             "recovery_verified": verified, "evidence_collected": has_evidence,

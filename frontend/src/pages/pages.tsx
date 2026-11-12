@@ -37,40 +37,135 @@ export function InfrastructurePage() {
     termination_reason: string; trajectory: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    fetch(dataUrl("infra-latest.json"))
+  const [refreshing, setRefreshing] = useState(false);
+  const loadIncident = () => {
+    setRefreshing(true);
+    setError(null);
+    fetch(`${dataUrl("infra-latest.json")}?refresh=${Date.now()}`, { cache: "no-store" })
       .then((r) => { if (!r.ok) throw new Error("no incident artifact yet"); return r.json(); })
       .then(setIncident)
-      .catch((e: Error) => setError(e.message));
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setRefreshing(false));
+  };
+  useEffect(() => {
+    loadIncident();
   }, []);
   return (
     <LabShell>
-      <SectionTitle index="04" title="Infrastructure Operations" hint="deterministic incident evaluation" />
-      <p className="max-w-3xl text-sm leading-relaxed text-[var(--color-ink-soft)]">
-        A separate incident environment reuses the lab’s ReAct loop and records each tool call. The agent can inspect simulated Nginx health, metrics, and logs; its only recovery action is allowlisted and operates on simulator state.
-      </p>
-      {error && <div className="card-flat mt-6 p-5"><p className="font-mono text-xs text-[var(--color-ink-faint)]">No run artifact yet. Run <code>python -m minilab.infra</code> from the repository root.</p></div>}
-      {incident && (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-6 border-b border-[var(--color-ink-faint)] pb-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-signal)]">Field console · local lab</p>
+          <h2 className="font-display mt-3 max-w-3xl text-4xl font-bold leading-[1.02] tracking-tight sm:text-6xl">
+            Observe. Diagnose.<br />Recover. Verify.
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-soft)] sm:text-base">
+            A controlled infrastructure operations lab built on Agent Reliability Lab. Run local Qwen through an incident, inspect every tool call, and score recovery with deterministic checks.
+          </p>
+        </div>
+        <div className="border-l-2 border-[var(--color-signal)] pl-4 font-mono text-xs leading-relaxed text-[var(--color-ink-soft)]">
+          <p className="uppercase tracking-wider text-[var(--color-ink-faint)]">Safety boundary</p>
+          <p className="mt-2">Agent actions affect simulator state only.</p>
+          <p>No host shell · no Docker socket · one allowlisted restart.</p>
+        </div>
+      </section>
+
+      <section className="mt-8" aria-label="Latest incident result">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SectionTitle index="01" title="Latest incident" hint="simulator result · deterministic evaluation" />
+          <button type="button" onClick={loadIncident} disabled={refreshing}
+            className="rounded border border-[var(--color-line)] px-3 py-2 font-mono text-xs uppercase tracking-wider hover:bg-[var(--color-paper-deep)] disabled:opacity-60">
+            {refreshing ? "Refreshing…" : "Refresh result"}
+          </button>
+        </div>
+        {error && <div className="card-flat mt-4 p-5"><p className="font-mono text-xs text-[var(--color-ink-faint)]">No run artifact yet. From the repository root, run <code>python -m minilab.infra --model local:qwen3-4b</code>.</p></div>}
+        {incident && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <article className="card p-5">
+              <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">{incident.scenario} · {incident.passed ? "pass" : "needs review"}</p>
+              <h3 className="font-display mt-2 text-2xl font-bold">{incident.passed ? "Recovered and verified" : "Recovery not verified"}</h3>
+              <dl className="mt-5 grid grid-cols-2 gap-4 font-mono text-xs">
+                <Meta label="model" value={incident.model} />
+                <Meta label="steps" value={String(incident.steps)} />
+                <Meta label="evidence" value={incident.evidence_collected ? "logs + metrics" : "incomplete"} />
+                <Meta label="termination" value={incident.termination_reason} />
+              </dl>
+              <p className="mt-5 border-t border-[var(--color-paper-deep)] pt-3 font-mono text-[11px] leading-relaxed text-[var(--color-ink-faint)]">This verdict is for the isolated incident simulator. It does not report or change the separate Docker Nginx service.</p>
+            </article>
+            <article className="card p-5">
+              <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">trajectory actions</p>
+              <ol className="mt-4 space-y-2.5 font-mono text-xs">
+                {incident.actions.map((action, i) => <li key={`${i}-${action}`} className="flex gap-3"><span className="text-[var(--color-signal)]">{String(i + 1).padStart(2, "0")}</span><span>{action}</span></li>)}
+              </ol>
+              <p className="mt-5 border-t border-[var(--color-paper-deep)] pt-3 font-mono text-xs text-[var(--color-ink-faint)]">Recovery verified: {incident.recovery_verified ? "yes" : "no"}</p>
+            </article>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-10" aria-label="Incident workflow">
+        <SectionTitle index="02" title="Incident workflow" hint="evidence before action" />
+        <div className="grid border-y border-[var(--color-line)] sm:grid-cols-4">
+          {[
+            ["01", "Observe", "Service state, metrics, and fixed logs"],
+            ["02", "Diagnose", "Use evidence to justify a response"],
+            ["03", "Recover", "One constrained simulator action"],
+            ["04", "Verify", "Inspect service health after recovery"],
+          ].map(([n, title, detail], i) => (
+            <div key={n} className={`py-4 pr-4 ${i ? "border-t border-[var(--color-paper-deep)] sm:border-l sm:border-t-0 sm:pl-4" : ""}`}>
+              <p className="font-mono text-xs text-[var(--color-signal)]">{n}</p>
+              <h3 className="font-display mt-1 text-xl font-bold">{title}</h3>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-soft)]">{detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10" aria-label="Available incident scenarios">
+        <SectionTitle index="03" title="Scenario catalog" hint="fixed faults · repeatable outcomes" />
+        <div className="grid gap-4 sm:grid-cols-2">
           <article className="card p-5">
-            <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">latest incident · {incident.scenario}</p>
-            <h3 className="font-display mt-2 text-2xl font-bold">{incident.passed ? "Recovered and verified" : "Recovery not verified"}</h3>
-            <dl className="mt-4 grid grid-cols-2 gap-3 font-mono text-xs">
-              <Meta label="model" value={incident.model} />
-              <Meta label="steps" value={String(incident.steps)} />
-              <Meta label="evidence" value={incident.evidence_collected ? "logs + metrics" : "incomplete"} />
-              <Meta label="termination" value={incident.termination_reason} />
-            </dl>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">01 · availability</p>
+            <h3 className="font-display mt-1 text-xl font-bold">Nginx unavailable</h3>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Service starts stopped. Inspect health, metrics, and worker logs; restart once and verify health.</p>
+            <code className="mt-4 block overflow-x-auto border-t border-[var(--color-paper-deep)] pt-3 font-mono text-[11px]">--scenario nginx-unavailable</code>
           </article>
           <article className="card p-5">
-            <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">trajectory actions</p>
-            <ol className="mt-3 space-y-2 font-mono text-xs">
-              {incident.actions.map((action, i) => <li key={`${i}-${action}`}><span className="text-[var(--color-signal)]">{String(i + 1).padStart(2, "0")}</span>　{action}</li>)}
-            </ol>
-            <p className="mt-4 text-xs text-[var(--color-ink-faint)]">Recovery verified: {incident.recovery_verified ? "yes" : "no"}</p>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-signal)]">02 · resource pressure</p>
+            <h3 className="font-display mt-1 text-xl font-bold">Nginx memory pressure</h3>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Service starts degraded at 93% memory. Evidence must be collected before the simulator restart and a healthy inspection.</p>
+            <code className="mt-4 block overflow-x-auto border-t border-[var(--color-paper-deep)] pt-3 font-mono text-[11px]">--scenario nginx-memory-pressure</code>
           </article>
         </div>
-      )}
+        <p className="mt-3 font-mono text-[10px] leading-relaxed text-[var(--color-ink-faint)]">Both incidents use the same restricted tool boundary and deterministic recovery checks. Docker Nginx remains an independent observation target.</p>
+      </section>
+
+      <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr]">
+        <div>
+          <SectionTitle index="04" title="Local observability" hint="optional Docker stack" />
+          <p className="mb-4 max-w-xl text-sm leading-relaxed text-[var(--color-ink-soft)]">These links show the separate Nginx and Prometheus containers. Start them with <code className="font-mono text-xs">docker compose up -d</code> from the repository root.</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <a className="card flex items-center justify-between p-4 hover:-translate-y-0.5" href="http://127.0.0.1:8088/health" target="_blank" rel="noreferrer">
+              <span><span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink-faint)]">Nginx</span><span className="font-display text-lg font-bold">Health endpoint</span></span><span aria-hidden="true" className="font-mono text-[var(--color-signal)]">↗</span>
+            </a>
+            <a className="card flex items-center justify-between p-4 hover:-translate-y-0.5" href="http://127.0.0.1:9090/targets" target="_blank" rel="noreferrer">
+              <span><span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink-faint)]">Prometheus</span><span className="font-display text-lg font-bold">Scrape targets</span></span><span aria-hidden="true" className="font-mono text-[var(--color-signal)]">↗</span>
+            </a>
+          </div>
+        </div>
+        <div>
+          <SectionTitle index="05" title="Run an evaluation" hint="from the project root" />
+          <div className="card bg-[var(--color-ink)] p-5 text-[var(--color-card)]">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-paper-deep)]">PowerShell · local Qwen</p>
+            <pre className="mt-3 overflow-x-auto font-mono text-xs leading-relaxed"><code>$env:PYTHONPATH = ".\src"{"\n"}.\.venv\Scripts\python.exe -m minilab.infra --model local:qwen3-4b</code></pre>
+            <p className="mt-4 text-xs leading-relaxed text-[var(--color-paper-deep)]">The run appends its trajectory and updates the latest-result file. Select “Refresh result” above to load it without a full page reload.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-10 border-t border-[var(--color-ink-faint)] pt-5">
+        <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink-faint)]">Research lineage</p>
+        <p className="mt-2 max-w-4xl text-xs leading-relaxed text-[var(--color-ink-soft)]">This is a separate infrastructure-focused duplicate built on the Agent Reliability Lab’s ReAct runner, trajectory format, deterministic evaluation approach, and visual system. Benchmark design was informed by Cloud-OpsBench; diagnostic and runbook-first patterns by K8sGPT and HolmesGPT. No upstream source files were copied.</p>
+      </section>
     </LabShell>
   );
 }

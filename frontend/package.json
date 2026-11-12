@@ -2,7 +2,7 @@
   "name": "minilab-frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "Observability frontend for the Mini Agent Reliability Lab (read-only over experiment artifacts)",
+  "description": "Infrastructure operations and reliability lab observatory, built on Agent Reliability Lab",
   "type": "module",
   "scripts": {
     "dev": "vite",

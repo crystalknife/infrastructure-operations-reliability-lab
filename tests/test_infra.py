@@ -12,11 +12,19 @@ from minilab.infra import InfrastructureEnv, dispatch, run_incident, scripted_mo
 
 class InfrastructureTests(unittest.TestCase):
     def test_scripted_incident_recovers_and_verifies(self):
-        trajectory, result = run_incident(scripted_model())
-        self.assertTrue(result["passed"])
-        self.assertEqual(trajectory.termination_reason, "agent_final")
-        self.assertEqual(trajectory.steps[-1].observation["status"], "healthy")
-        self.assertEqual([s.action for s in trajectory.steps].count("restart_service"), 1)
+        for scenario in ("nginx-unavailable", "nginx-memory-pressure"):
+            with self.subTest(scenario=scenario):
+                trajectory, result = run_incident(scripted_model(), scenario=scenario)
+                self.assertTrue(result["passed"])
+                self.assertTrue(result["evidence_collected"])
+                self.assertEqual(trajectory.termination_reason, "agent_final")
+                self.assertEqual(trajectory.steps[-1].observation["status"], "healthy")
+                self.assertEqual([s.action for s in trajectory.steps].count("restart_service"), 1)
+
+    def test_memory_pressure_starts_degraded_with_high_memory(self):
+        env = InfrastructureEnv("nginx-memory-pressure")
+        self.assertEqual(env.inspect_service("nginx")["status"], "degraded")
+        self.assertEqual(env.get_metrics("nginx")["memory_percent"], 93)
 
     def test_unknown_service_is_never_remediated(self):
         env = InfrastructureEnv()

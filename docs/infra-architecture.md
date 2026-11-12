@@ -21,7 +21,7 @@ Docker Compose (separate, optional observation stack): Nginx → exporter → Pr
 
 ## Scenario and tools
 
-The first scenario, `nginx-unavailable`, starts the simulated service stopped. Read-only tools inspect service status, fixed metrics, and incident log lines. The sole write tool is `restart_service(service="nginx")`; it changes only in-memory simulator state. Success requires logs and metrics evidence, the allowlisted recovery, and a subsequent healthy inspection. The evaluator is deterministic and does not use an LLM judge.
+The scenarios `nginx-unavailable` and `nginx-memory-pressure` start from distinct fixed states: stopped service or degraded service at 93% memory. Read-only tools inspect service status, fixed metrics, and incident log lines. The sole write tool is `restart_service(service="nginx")`; it changes only in-memory simulator state. Success requires logs and metrics before the action, exactly one allowlisted recovery, and a subsequent healthy inspection. The evaluator is deterministic and does not use an LLM judge.
 
 Compose runs a separate local Nginx endpoint and Prometheus exporter stack. It is for human observation and setup practice. The agent does not connect to these containers and does not repair live containers.
 
@@ -32,4 +32,4 @@ Compose runs a separate local Nginx endpoint and Prometheus exporter stack. It i
 - `src/minilab/tools.py`: original MiniBank schemas and dispatcher.
 - `src/minilab/trajectory.py`: canonical schema and JSONL append writer.
 - `src/minilab/evaluation.py`, `failures.py`, `runner.py`: deterministic answer checks and experiment accounting.
-- `frontend/`: static observatory using experiment artifacts. Infrastructure run summary is exposed as a separate route and does not enter MiniBank experiment statistics.
+- `frontend/`: Observatory built on the Agent Reliability Lab visual system. Infrastructure operations is the home route (`/`, also `/infrastructure`); historical MiniBank experiment analysis remains available under Agent evaluations. The latest summary is written by the Python CLI and loaded by the page refresh control. It remains separate from MiniBank experiment statistics.

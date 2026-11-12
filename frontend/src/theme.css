@@ -65,6 +65,49 @@ body {
   border-radius: 10px;
 }
 
+/* The hero animation reads like a quiet operations console: telemetry flows,
+   the agent scans the service, and the verified state gently pulses. */
+@keyframes infra-data-flow {
+  to { stroke-dashoffset: -56; }
+}
+
+@keyframes infra-scan {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes infra-ring-pulse {
+  0%, 100% { opacity: .45; transform: scale(.96); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes infra-core-pulse {
+  0%, 100% { transform: scale(.82); }
+  50% { transform: scale(1.18); }
+}
+
+@keyframes infra-status-pulse {
+  0%, 100% { opacity: .5; }
+  50% { opacity: 1; }
+}
+
+.infra-flow { animation: infra-data-flow 3s linear infinite; }
+.infra-scan-sweep {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: infra-scan 12s linear infinite;
+}
+.infra-radar-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: infra-ring-pulse 4s ease-in-out infinite;
+}
+.infra-agent-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: infra-core-pulse 2.4s ease-in-out infinite;
+}
+.infra-status { animation: infra-status-pulse 2s ease-in-out infinite; }
+
 :focus-visible {
   outline: 3px solid var(--color-signal);
   outline-offset: 2px;
@@ -75,5 +118,10 @@ body {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  .infra-flow, .infra-scan-sweep, .infra-radar-ring, .infra-agent-core, .infra-status {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 }

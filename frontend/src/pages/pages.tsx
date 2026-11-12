@@ -56,18 +56,20 @@ export function OperationsPage() {
         <div className="card relative min-h-64 overflow-hidden p-5 sm:min-h-80" aria-label="Service observability map">
           <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(var(--color-ink-faint) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
           <div className="relative flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]">
-            <span>Live lab map</span><span className="flex items-center gap-2"><i className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-signal)]" /> local</span>
+            <span>Incident response loop</span><span className="flex items-center gap-2"><i className="infra-status h-2 w-2 rounded-full bg-[var(--color-signal)]" /> local simulation</span>
           </div>
-          <svg className="relative mt-6 h-52 w-full sm:h-64" viewBox="0 0 520 250" role="img" aria-label="Agent observes service metrics and logs before a verified simulator recovery">
-            <path d="M115 126H405M260 65V188" stroke="currentColor" strokeOpacity=".22" strokeWidth="2" strokeDasharray="5 7" />
-            <path d="M115 126H405M260 65V188" stroke="var(--color-signal)" strokeOpacity=".72" strokeWidth="2" />
-            <circle cx="260" cy="126" r="64" fill="none" stroke="var(--color-signal)" strokeOpacity=".2" strokeWidth="1" />
+          <svg className="relative mt-6 h-52 w-full sm:h-64" viewBox="0 0 520 250" role="img" aria-label="Animated infrastructure loop: the local agent scans Nginx health and logs, sends evidence to deterministic evaluation, and records verified recovery">
+            <path d="M176 126H212M308 126H344M260 66V78M260 174V187" stroke="currentColor" strokeOpacity=".24" strokeWidth="2" strokeDasharray="5 7" />
+            <path className="infra-flow" d="M176 126H212M308 126H344M260 66V78M260 174V187" stroke="var(--color-signal)" strokeOpacity=".78" strokeWidth="2" strokeDasharray="6 8" />
+            <circle className="infra-radar-ring" cx="260" cy="126" r="64" fill="none" stroke="var(--color-signal)" strokeOpacity=".2" strokeWidth="1" />
+            <g className="infra-scan-sweep"><path d="M260 126 L260 76 A50 50 0 0 1 295 90 Z" fill="var(--color-signal)" fillOpacity=".12" /><path d="M260 126L260 76" stroke="var(--color-signal)" strokeOpacity=".68" strokeWidth="1.5" /></g>
             <circle cx="260" cy="126" r="48" fill="var(--color-paper)" stroke="var(--color-line)" strokeWidth="2" />
-            <circle cx="260" cy="126" r="8" fill="var(--color-signal)" />
+            <circle className="infra-agent-core" cx="260" cy="126" r="8" fill="var(--color-signal)" />
             <rect x="34" y="93" width="142" height="66" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
             <rect x="344" y="93" width="142" height="66" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
-            <rect x="189" y="12" width="142" height="54" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <rect className="infra-agent-node" x="189" y="12" width="142" height="54" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
             <rect x="189" y="187" width="142" height="54" rx="8" fill="var(--color-card)" stroke="var(--color-line)" strokeWidth="2" />
+            <circle className="infra-status" cx="311" cy="28" r="4" fill="var(--color-signal)" />
             <g fill="currentColor" fontFamily="monospace" textAnchor="middle"><text x="105" y="122" fontSize="12">NGINX SERVICE</text><text x="105" y="141" fontSize="10" opacity=".6">health · logs</text><text x="415" y="122" fontSize="12">EVALUATOR</text><text x="415" y="141" fontSize="10" opacity=".6">deterministic</text><text x="260" y="35" fontSize="12">LOCAL AGENT</text><text x="260" y="55" fontSize="10" opacity=".6">Qwen · ReAct</text><text x="260" y="210" fontSize="12">TRAJECTORY</text><text x="260" y="229" fontSize="10" opacity=".6">evidence · actions</text></g>
           </svg>
         </div>

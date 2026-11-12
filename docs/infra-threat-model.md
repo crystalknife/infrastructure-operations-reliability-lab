@@ -5,7 +5,7 @@
 - Host OS, local files, credentials, Docker Desktop, and any other local services are outside the lab trust boundary.
 - The agent receives only fixed synthetic observations and fixed schemas.
 - `InfrastructureEnv` stores simulated status in process memory. It has no filesystem, subprocess, network, Docker API, Kubernetes API, SSH, or cloud client.
-- Compose containers use a user-defined network, read-only configuration, dropped Linux capabilities, `no-new-privileges`, and loopback-only host ports. There is no Docker socket mount and no agent container with a Docker control plane.
+- Compose containers use a user-defined network, read-only configuration, dropped Linux capabilities, `no-new-privileges`, and loopback-only host ports. Nginx runs as UID 101. Prometheus runs as UID 0 because its writable scratch mount is root-owned; all Linux capabilities are dropped, its root filesystem is read-only, and it has no Docker socket or host mounts.
 
 ## Allowed operations
 

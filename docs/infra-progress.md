@@ -13,6 +13,7 @@
 - Added architecture, threat, runbook, evaluation, and provenance documentation.
 - `python -m unittest discover -s tests`: 250 tests passed.
 - Scripted incident: passed; logs and metrics gathered, one simulated restart performed, post-recovery health verified; trajectory and dashboard summary recorded.
-- `docker compose config`: passed. Docker daemon unavailable in this environment, so images were not started and endpoint checks remain outstanding.
+- `docker compose config`: passed. After Docker Desktop became available, all three services started; Nginx reports healthy on `127.0.0.1:8088`, Prometheus is reachable on `127.0.0.1:9090`, and its `nginx` scrape target is `up` with `nginx_up = 1`.
 - Frontend tests/build: 22 tests passed; TypeScript typecheck and production build passed. The test run caught a new page fetch-key mismatch; fixed by using the dashboard's base-aware URL helper. Existing dependency warnings about ignored `use client` module directives appear during Vite build.
 - Local Qwen endpoint probe: `127.0.0.1:8081` refused the connection, so no live Qwen inference was run.
+- GitHub CLI authentication works through the Windows keyring when network access is available. Authenticated repo inventory was checked before creating the requested separate repository.

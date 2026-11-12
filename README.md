@@ -58,6 +58,10 @@ npm run dev
 
 Open `http://localhost:5173/`. After an incident run, choose **Refresh result** on the operations page. The Python run updates the dashboard JSON; the frontend reads that artifact and does not need manual code edits or a rebuild during Vite development.
 
+## Public deployment
+
+The static Observatory is configured for GitHub Pages; local Qwen, Docker Nginx, and Prometheus stay on the developer machine. Enable **Settings → Pages → Source → GitHub Actions** once. Push frontend changes or updated incident artifacts to `infra-ops-reliability`; the Pages workflow runs frontend tests, type checking, and a repository-path-aware build before publishing. The hosted page does not connect to or expose local model or monitoring endpoints. See the [deployment guide](docs/infra-deployment.md).
+
 ## Optional Nginx and Prometheus stack
 
 This Compose environment is for observing the local demo service. It is independent of the agent simulator.

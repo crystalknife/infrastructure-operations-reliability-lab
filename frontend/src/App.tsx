@@ -14,9 +14,10 @@ function Loading() {
 }
 
 export function App() {
+  const basename = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
   return (
     <SmoothRoot>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <React.Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<OperationsPage />} />

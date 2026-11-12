@@ -1,11 +1,12 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({
-  plugins: [tailwindcss()],
-  // Absolute base: the app uses clean react-router URLs, which require SPA
-  // fallback rewrites on the host. Relative asset paths would break lazy
-  // chunks on deep routes the same way relative data URLs did.
-  base: "/",
-  build: { outDir: "dist", emptyOutDir: true },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  return {
+    plugins: [tailwindcss()],
+    // Vercel-like root hosting stays at /; GitHub Pages uses the repository path.
+    base: env.VITE_BASE_PATH || "/",
+    build: { outDir: "dist", emptyOutDir: true },
+  };
 });

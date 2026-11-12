@@ -31,6 +31,7 @@ export function DashboardPage() {
 
 /** /infrastructure — latest deterministic infrastructure incident artifact. */
 export function OperationsPage() {
+  const isPublicPages = import.meta.env.BASE_URL !== "/";
   const [incident, setIncident] = useState<{
     scenario: string; passed: boolean; model: string; steps: number;
   } | null>(null);
@@ -178,7 +179,7 @@ export function OperationsPage() {
       <section className="mt-14">
         <h3 className="font-display mb-5 text-2xl font-bold">Explore operations</h3>
         <article className="card grid gap-6 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7">
-          <div><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]">Latest evaluation</p><h4 className="font-display mt-2 text-3xl font-bold">{incident ? (incident.passed ? "Recovery verified." : "Review the run.") : "Run the first incident."}</h4><p className="mt-2 text-sm text-[var(--color-ink-soft)]">{incident ? `${incident.scenario} · ${incident.model} · ${incident.steps} steps` : "Start a local Qwen evaluation and return here to inspect its result."}</p><div className="mt-5 flex flex-wrap gap-5 font-mono text-xs"><a className="underline decoration-[var(--color-signal)] underline-offset-4" href="http://127.0.0.1:8088/health" target="_blank" rel="noreferrer">Nginx health ↗</a><a className="underline decoration-[var(--color-signal)] underline-offset-4" href="http://127.0.0.1:9090/targets" target="_blank" rel="noreferrer">Prometheus targets ↗</a></div></div>
+          <div><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]">Latest evaluation · {isPublicPages ? "published run artifact" : "local lab"}</p><h4 className="font-display mt-2 text-3xl font-bold">{incident ? (incident.passed ? "Recovery verified." : "Review the run.") : "Run the first incident."}</h4><p className="mt-2 text-sm text-[var(--color-ink-soft)]">{incident ? `${incident.scenario} · ${incident.model} · ${incident.steps} steps` : "Start a local Qwen evaluation and return here to inspect its result."}</p>{isPublicPages ? <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-[var(--color-ink-faint)]">This public page shows the last committed evaluation. Run Qwen and Prometheus locally; this site has no remote control plane.</p> : <div className="mt-5 flex flex-wrap gap-5 font-mono text-xs"><a className="underline decoration-[var(--color-signal)] underline-offset-4" href="http://127.0.0.1:8088/health" target="_blank" rel="noreferrer">Nginx health ↗</a><a className="underline decoration-[var(--color-signal)] underline-offset-4" href="http://127.0.0.1:9090/targets" target="_blank" rel="noreferrer">Prometheus targets ↗</a></div>}</div>
           <Link to="/infrastructure" className="rounded-md bg-[var(--color-ink)] px-5 py-3 text-center font-mono text-xs uppercase tracking-wider text-[var(--color-card)] hover:bg-[var(--color-signal)]">Open incident lab →</Link>
         </article>
       </section>
@@ -193,6 +194,7 @@ export function OperationsPage() {
 
 /** /infrastructure — detailed incident lab and scenario catalog. */
 export function InfrastructurePage() {
+  const isPublicPages = import.meta.env.BASE_URL !== "/";
   const [incident, setIncident] = useState<{
     scenario: string; passed: boolean; recovered: boolean; recovery_verified: boolean;
     evidence_collected: boolean; model: string; steps: number; actions: string[];
@@ -308,21 +310,21 @@ export function InfrastructurePage() {
         <div>
           <SectionTitle index="04" title="Local observability" hint="optional Docker stack" />
           <p className="mb-4 max-w-xl text-sm leading-relaxed text-[var(--color-ink-soft)]">These links show the separate Nginx and Prometheus containers. Start them with <code className="font-mono text-xs">docker compose up -d</code> from the repository root.</p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          {isPublicPages ? <div className="card-flat p-5"><p className="font-mono text-xs uppercase tracking-wider text-[var(--color-signal)]">Private local endpoints</p><p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">Prometheus and Nginx are intentionally kept on your own machine. Their loopback addresses are not linked from this public site. Follow the repository runbook to start and inspect them locally.</p><a className="mt-3 inline-block font-mono text-xs underline underline-offset-4" href="https://github.com/crystalknife/infrastructure-operations-reliability-lab/blob/infra-ops-reliability/docs/infra-runbook.md">Open the local runbook ↗</a></div> : <div className="grid gap-3 sm:grid-cols-2">
             <a className="card flex items-center justify-between p-4 hover:-translate-y-0.5" href="http://127.0.0.1:8088/health" target="_blank" rel="noreferrer">
               <span><span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink-faint)]">Nginx</span><span className="font-display text-lg font-bold">Health endpoint</span></span><span aria-hidden="true" className="font-mono text-[var(--color-signal)]">↗</span>
             </a>
             <a className="card flex items-center justify-between p-4 hover:-translate-y-0.5" href="http://127.0.0.1:9090/targets" target="_blank" rel="noreferrer">
               <span><span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--color-ink-faint)]">Prometheus</span><span className="font-display text-lg font-bold">Scrape targets</span></span><span aria-hidden="true" className="font-mono text-[var(--color-signal)]">↗</span>
             </a>
-          </div>
+          </div>}
         </div>
         <div>
           <SectionTitle index="05" title="Run an evaluation" hint="from the project root" />
           <div className="card card-ink p-5">
             <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-paper-deep)]">PowerShell · local Qwen</p>
             <pre className="mt-3 overflow-x-auto font-mono text-xs leading-relaxed"><code>$env:PYTHONPATH = ".\src"{"\n"}.\.venv\Scripts\python.exe -m minilab.infra --model local:qwen3-4b</code></pre>
-            <p className="mt-4 text-xs leading-relaxed text-[var(--color-paper-deep)]">The run appends its trajectory and updates the latest-result file. Select “Refresh result” above to load it without a full page reload.</p>
+            <p className="mt-4 text-xs leading-relaxed text-[var(--color-paper-deep)]">The run appends its trajectory and updates the latest-result file. {isPublicPages ? "New runs appear on this public site after they are committed and the Pages deployment finishes." : "Select ‘Refresh result’ above to load it without a full page reload."}</p>
           </div>
         </div>
       </section>

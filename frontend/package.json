@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.json && vite build",
+    "build": "tsc -p tsconfig.json && vite build && node scripts/create-spa-fallback.mjs",
     "preview": "vite preview --port 4173",
     "data": "python ../scripts/export_task_catalog.py public/data/tasks.json && node scripts/export-data.mjs",
     "test": "vitest run",

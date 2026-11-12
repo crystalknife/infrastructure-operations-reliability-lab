@@ -14,6 +14,8 @@ const TrialsPage = React.lazy(() =>
   import("./pages/pages").then((m) => ({ default: m.TrialsPage })));
 const TrialPage = React.lazy(() =>
   import("./pages/pages").then((m) => ({ default: m.TrialPage })));
+const InfrastructurePage = React.lazy(() =>
+  import("./pages/pages").then((m) => ({ default: m.InfrastructurePage })));
 
 function Loading() {
   return <p className="p-8 font-mono text-sm">Loading view…</p>;
@@ -31,6 +33,7 @@ export function App() {
             <Route path="/experiments/:id/tasks/:taskId" element={<TaskPage />} />
             <Route path="/experiments/:id/trials" element={<TrialsPage />} />
             <Route path="/experiments/:id/trials/:runId" element={<TrialPage />} />
+            <Route path="/infrastructure" element={<InfrastructurePage />} />
             <Route path="*" element={<DashboardPage />} />
           </Routes>
         </React.Suspense>

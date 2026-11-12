@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { dataUrl } from "../../lib/load";
 import {
-  DashboardPage, ExperimentPage, ExperimentsPage, TaskPage, TrialsPage, TrialPage,
+  DashboardPage, ExperimentPage, ExperimentsPage, TaskPage, TrialsPage, TrialPage, InfrastructurePage,
 } from "../../pages/pages";
 
 const DATA = join(process.cwd(), "public", "data");
@@ -20,7 +20,8 @@ beforeAll(() => {
   const files: Record<string, string> = {};
   for (const f of ["manifest.json", "exp-001.json", "exp-001.traj.json", "tasks.json",
     "exp-002.json", "exp-002.traj.json", "exp-002a.json", "exp-002a.traj.json",
-    "exp-002b.json", "exp-002b.traj.json", "exp-002c.json", "exp-002c.traj.json"]) {
+    "exp-002b.json", "exp-002b.traj.json", "exp-002c.json", "exp-002c.traj.json",
+    "infra-latest.json"]) {
     files[dataUrl(f)] = readFileSync(join(DATA, f), "utf-8");
   }
   vi.stubGlobal("fetch", async (url: string) => ({
@@ -131,5 +132,15 @@ describe("exp-002 pilot report", () => {
     at("/experiments/exp-002c/trials", <Routes>{routes}</Routes>);
     await waitFor(() => expect(screen.getByRole("tablist", { name: "Filter trials" })).toBeTruthy());
     expect(document.body.textContent).toContain("horizon-checking-combined");
+  });
+});
+
+describe("infrastructure route", () => {
+  it("renders the evaluated incident summary and trajectory actions", async () => {
+    at("/infrastructure", <InfrastructurePage />);
+    await waitFor(() => expect(document.body.textContent).toContain("Recovered and verified"));
+    expect(document.body.textContent).toContain("nginx-unavailable");
+    expect(document.body.textContent).toContain("restart_service");
+    expect(document.body.textContent).toContain("Recovery verified: yes");
   });
 });

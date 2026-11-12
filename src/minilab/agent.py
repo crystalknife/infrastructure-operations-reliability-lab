@@ -56,7 +56,8 @@ def _as_call_list(out):
 
 
 def run_agent(task_id, task_prompt, env, model_fn, max_steps=8, meta=None,
-              exec_mode="sequential"):
+              exec_mode="sequential", tool_schemas=None, dispatch_fn=None,
+              system_prompt=None):
     """Run one episode. Always returns a Trajectory, never raises.
 
     model_fn(messages, tool_schemas, config) -> {"tool", "arguments"} | {"calls", [...]} | {"final"}.
@@ -75,8 +76,11 @@ def run_agent(task_id, task_prompt, env, model_fn, max_steps=8, meta=None,
         raise ValueError(
             f"unknown exec_mode: {exec_mode!r} (use 'sequential' or 'batch').")
     meta = meta or {}
+    schemas = TOOL_SCHEMAS if tool_schemas is None else tool_schemas
+    dispatcher = dispatch if dispatch_fn is None else dispatch_fn
+    prompt = build_system_prompt() if system_prompt is None else system_prompt
     messages = [
-        {"role": "system", "content": build_system_prompt()},
+        {"role": "system", "content": prompt},
         {"role": "user", "content": task_prompt},
     ]
     raw_history = [dict(m) for m in messages]
@@ -87,7 +91,7 @@ def run_agent(task_id, task_prompt, env, model_fn, max_steps=8, meta=None,
 
     for i in range(1, max_steps + 1):
         try:
-            out = model_fn(list(messages), TOOL_SCHEMAS, config)
+            out = model_fn(list(messages), schemas, config)
         except Exception as e:  # noqa: BLE001 - model/API faults become data
             steps.append(Step(step=i, action="model_error", arguments={},
                               observation={"error": f"model error: {e!r}"}))
@@ -113,7 +117,7 @@ def run_agent(task_id, task_prompt, env, model_fn, max_steps=8, meta=None,
         for call in calls:
             name, args = call["tool"], call.get("arguments", {}) or {}
             try:
-                obs = dispatch(env, name, args)
+                obs = dispatcher(env, name, args)
             except ValueError as e:
                 steps.append(Step(step=i, action=name, arguments=args, observation={"error": str(e)}))
                 termination_reason = "tool_error"

@@ -88,6 +88,18 @@ The core properties of the current MVP:
 </td></tr>
 </table>
 
+## Infrastructure Operations extension
+
+This isolated extension adds a deterministic Nginx incident scenario to the existing ReAct loop. Its service, metrics, and log tools read fixed simulator state; its only remediation restarts simulated Nginx. It does not grant the agent host shell, Docker socket, or live container control. A separate optional Docker Compose stack runs Nginx and Prometheus for local observation.
+
+```powershell
+python -m minilab.infra --model scripted
+```
+
+Use `python -m minilab.infra --model local:qwen3-4b` when the existing local `llama-server` endpoint is running. The run appends a canonical trajectory to `results/infra-trajectories.jsonl` and updates the Observatory's `/infrastructure` summary. Start the monitoring stack with `docker compose up -d`; details and safeguards are in [the infrastructure runbook](docs/infra-runbook.md).
+
+See the [architecture](docs/infra-architecture.md), [threat model](docs/infra-threat-model.md), [evaluation plan](docs/infra-evaluation-plan.md), and [provenance notes](docs/infra-provenance.md). The scripted end-to-end check is a harness control, not a Qwen capability result.
+
 ### Local and API Models
 
 Model selection is a single `--model` string. The harness ships with built-in local controls and adapters for external providers:

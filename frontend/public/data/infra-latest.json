@@ -1,0 +1,19 @@
+{
+  "scenario": "nginx-unavailable",
+  "passed": true,
+  "recovered": true,
+  "recovery_verified": true,
+  "evidence_collected": true,
+  "failure": null,
+  "model": "scripted",
+  "steps": 5,
+  "actions": [
+    "inspect_service",
+    "get_metrics",
+    "get_logs",
+    "restart_service",
+    "inspect_service"
+  ],
+  "termination_reason": "agent_final",
+  "trajectory": "results/infra-trajectories.jsonl"
+}

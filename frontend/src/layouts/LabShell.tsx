@@ -4,6 +4,7 @@ import { cn } from "../lib/cn";
 const LINKS = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/experiments", label: "Experiments", end: true },
+  { to: "/infrastructure", label: "Infrastructure", end: true },
 ];
 
 export function LabShell({ children }: { children: React.ReactNode }) {

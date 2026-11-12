@@ -1,7 +1,9 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useExperiment, useManifest } from "../hooks/useExperiment";
 import { agentReliability } from "../lib/selectors";
 import { LabShell } from "../layouts/LabShell";
+import { dataUrl } from "../lib/load";
 import { DashboardBody } from "../components/Dashboard";
 import { Exp002Page } from "../components/Exp002";
 import { Empty, Reveal, SectionTitle } from "../components/display";
@@ -25,6 +27,52 @@ export function DashboardPage() {
   if (!entries) return <LabShell><Loading what="experiment index" /></LabShell>;
   if (entries.length === 0) return <LabShell><Empty what="experiments — run `npm run data` first" /></LabShell>;
   return <ExperimentPage id={entries[0].id} />;
+}
+
+/** /infrastructure — latest deterministic infrastructure incident artifact. */
+export function InfrastructurePage() {
+  const [incident, setIncident] = useState<{
+    scenario: string; passed: boolean; recovered: boolean; recovery_verified: boolean;
+    evidence_collected: boolean; model: string; steps: number; actions: string[];
+    termination_reason: string; trajectory: string;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    fetch(dataUrl("infra-latest.json"))
+      .then((r) => { if (!r.ok) throw new Error("no incident artifact yet"); return r.json(); })
+      .then(setIncident)
+      .catch((e: Error) => setError(e.message));
+  }, []);
+  return (
+    <LabShell>
+      <SectionTitle index="04" title="Infrastructure Operations" hint="deterministic incident evaluation" />
+      <p className="max-w-3xl text-sm leading-relaxed text-[var(--color-ink-soft)]">
+        A separate incident environment reuses the lab’s ReAct loop and records each tool call. The agent can inspect simulated Nginx health, metrics, and logs; its only recovery action is allowlisted and operates on simulator state.
+      </p>
+      {error && <div className="card-flat mt-6 p-5"><p className="font-mono text-xs text-[var(--color-ink-faint)]">No run artifact yet. Run <code>python -m minilab.infra</code> from the repository root.</p></div>}
+      {incident && (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <article className="card p-5">
+            <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">latest incident · {incident.scenario}</p>
+            <h3 className="font-display mt-2 text-2xl font-bold">{incident.passed ? "Recovered and verified" : "Recovery not verified"}</h3>
+            <dl className="mt-4 grid grid-cols-2 gap-3 font-mono text-xs">
+              <Meta label="model" value={incident.model} />
+              <Meta label="steps" value={String(incident.steps)} />
+              <Meta label="evidence" value={incident.evidence_collected ? "logs + metrics" : "incomplete"} />
+              <Meta label="termination" value={incident.termination_reason} />
+            </dl>
+          </article>
+          <article className="card p-5">
+            <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-ink-faint)]">trajectory actions</p>
+            <ol className="mt-3 space-y-2 font-mono text-xs">
+              {incident.actions.map((action, i) => <li key={`${i}-${action}`}><span className="text-[var(--color-signal)]">{String(i + 1).padStart(2, "0")}</span>　{action}</li>)}
+            </ol>
+            <p className="mt-4 text-xs text-[var(--color-ink-faint)]">Recovery verified: {incident.recovery_verified ? "yes" : "no"}</p>
+          </article>
+        </div>
+      )}
+    </LabShell>
+  );
 }
 
 /** /experiments/:id — dashboard scoped to one experiment. The pilot report
